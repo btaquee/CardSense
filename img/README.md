@@ -1,0 +1,1 @@
+This folder includes image in README.md
