@@ -1,4 +1,6 @@
-# CardSense(CS180 Group Project)
+# CardSense
+*CS180 Group Project*
+
 **Manage user's budgets and maximize credit card rewards by tracking spending**
 
 
