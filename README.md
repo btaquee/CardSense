@@ -35,10 +35,121 @@ Here is our program look like:
 
 ## Installation/Usage
 
-1. Clone the project repository from GitHub.
+### Prerequisites
+- Python 3.x
+- Node.js and npm
+- Git
 
-[Insert here]
+### First Time Setup
+
+#### 1. Clone the Repository
+```bash
+git clone https://github.com/btaquee/CardSense.git
+cd CardSense
+```
+
+#### 2. Backend Setup (Django)
+Open a terminal and run:
+```bash
+# Create Python virtual environment
+python -m venv venv
+
+# Activate virtual environment
+# On Windows:
+.\venv\Scripts\Activate.ps1
+# On macOS/Linux:
+# source venv/bin/activate
+
+# Install Django dependencies
+pip install django djangorestframework django-cors-headers
+
+# Run database migrations
+python manage.py migrate
+```
+
+#### 3. Frontend Setup (React)
+Open a **NEW** terminal window and run:
+```bash
+# Navigate to web folder
+cd web
+
+# Install React dependencies
+npm install
+```
+
+### Running the Application
+
+You need **TWO terminal windows** running simultaneously:
+
+#### Terminal 1 - Django Backend
+```bash
+# Navigate to project root (CardSense folder)
+cd CardSense
+
+# Activate virtual environment
+# Windows:
+.\venv\Scripts\Activate.ps1
+# macOS/Linux:
+# source venv/bin/activate
+
+# Start Django server
+python manage.py runserver
+```
+✅ Backend runs at: **http://127.0.0.1:8000/**
+
+#### Terminal 2 - React Frontend
+```bash
+# Navigate to web folder
+cd CardSense/web
+
+# Start React dev server
+npm start
+```
+✅ Frontend runs at: **http://localhost:3000/**
+
+### Testing the Setup
+
+1. **Backend Health Check**: Visit http://127.0.0.1:8000/api/accounts/health/
+   - Should return: `{"status":"ok"}`
+
+2. **Frontend**: Visit http://localhost:3000
+   - Should display the React application
+
+### Stopping the Servers
+Press `CTRL+C` in each terminal window to stop the servers.
+
+### Important Notes
+⚠️ **Common Mistake**: Make sure you run commands from the correct directory:
+- Django commands: Run from `CardSense/` (project root)
+- React commands: Run from `CardSense/web/` (web folder)
+
+⚠️ **Virtual Environment**: Always activate the virtual environment before running Django commands.
+
+## Project Structure
+
+```
+CardSense/
+├── accounts/              # Django app for authentication & user management
+├── api/                   # Django project configuration
+├── web/                   # React frontend application
+│   ├── src/              # React source files
+│   ├── public/           # Static files
+│   └── package.json      # Frontend dependencies
+├── venv/                  # Python virtual environment (created during setup)
+├── db.sqlite3             # SQLite database
+└── manage.py              # Django management script
+```
 
 ## Testing
 
-[Testing]
+Run backend tests:
+```bash
+# From CardSense/ directory with venv activated
+python manage.py test
+```
+
+Run frontend tests:
+```bash
+# From CardSense/web/ directory
+npm test
+```
