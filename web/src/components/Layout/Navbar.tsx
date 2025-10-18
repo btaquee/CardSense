@@ -62,10 +62,10 @@ const Navbar: React.FC = () => {
                 className="flex items-center space-x-2 text-gray-700 hover:text-blue-600"
               >
                 <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">
-                  {user?.first_name?.[0]}{user?.last_name?.[0]}
+                  {user?.first_name?.[0] || 'D'}{user?.last_name?.[0] || 'U'}
                 </div>
                 <span className="hidden md:block text-sm font-medium">
-                  {user?.first_name} {user?.last_name}
+                  {user?.first_name || 'Demo'} {user?.last_name || 'User'}
                 </span>
               </button>
 

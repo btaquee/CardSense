@@ -1,6 +1,4 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
-import { authService } from '../../services/auth.service';
 import Navbar from './Navbar';
 
 interface PrivateRouteProps {
@@ -8,11 +6,11 @@ interface PrivateRouteProps {
 }
 
 const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
-  const isAuthenticated = authService.isAuthenticated();
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
+  // TEMPORARY: Disabled auth check for development (no backend yet)
+  // const isAuthenticated = authService.isAuthenticated();
+  // if (!isAuthenticated) {
+  //   return <Navigate to="/login" replace />;
+  // }
 
   return (
     <>

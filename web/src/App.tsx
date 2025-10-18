@@ -4,7 +4,6 @@ import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import Dashboard from './components/Dashboard/Dashboard';
 import PrivateRoute from './components/Layout/PrivateRoute';
-import './App.css';
 
 const App: React.FC = () => {
   return (

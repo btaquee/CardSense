@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { authService } from '../../services/auth.service';
+// import { authService } from '../../services/auth.service'; // TEMPORARY: Uncomment when backend ready
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
@@ -30,19 +30,25 @@ const Register: React.FC = () => {
 
     setLoading(true);
 
-    try {
-      const { confirmPassword, ...registerData } = formData;
-      const response = await authService.register(registerData);
-      if (response.success) {
-        navigate('/dashboard');
-      } else {
-        setError(response.error?.message || 'Registration failed');
-      }
-    } catch (err) {
-      setError('An unexpected error occurred');
-    } finally {
-      setLoading(false);
-    }
+    // TEMPORARY: Skip backend API call for frontend testing
+    setTimeout(() => {
+      navigate('/dashboard');
+    }, 500);
+
+    // REAL CODE (uncomment when backend is ready):
+    // try {
+    //   const { confirmPassword, ...registerData } = formData;
+    //   const response = await authService.register(registerData);
+    //   if (response.success) {
+    //     navigate('/dashboard');
+    //   } else {
+    //     setError(response.error?.message || 'Registration failed');
+    //   }
+    // } catch (err) {
+    //   setError('An unexpected error occurred');
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
