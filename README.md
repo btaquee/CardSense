@@ -22,8 +22,8 @@ Many Americans face numerous financial challenges under certain circumstances, p
 [User Diagram]
 
 
-### Class Diagram
-[Class Diiagram]
+### Class Diagram Draft
+![Class Diagram Draft](cardsense_class_diagram_draft.png)
 
 
 ## Screenshots
