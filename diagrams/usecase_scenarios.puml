@@ -1,0 +1,133 @@
+@startuml CardSense Detailed Use Case Scenarios
+
+left to right direction
+
+actor "User" as user
+actor "System" as system
+
+' ============ Scenario 1: Tracking Spending and Budgets ============
+rectangle "Scenario 1: Tracking Spending and Budgets" {
+  usecase "Login to Account" as S1_UC1
+  usecase "View Dashboard" as S1_UC2
+  usecase "Add Transaction" as S1_UC3
+  usecase "Upload CSV" as S1_UC4
+  usecase "Categorize Transaction" as S1_UC5
+  usecase "Set Monthly Budget Limit" as S1_UC6
+  usecase "View Spending Summary" as S1_UC7
+  usecase "Check Budget Remaining" as S1_UC8
+  usecase "Receive Budget Alert" as S1_UC9
+  usecase "View Visualizations" as S1_UC10
+  
+  user --> S1_UC1
+  S1_UC1 --> S1_UC2
+  user --> S1_UC3
+  user --> S1_UC4
+  S1_UC3 --> S1_UC5
+  S1_UC4 --> S1_UC5
+  user --> S1_UC6
+  S1_UC2 --> S1_UC7
+  S1_UC7 --> S1_UC8
+  S1_UC2 --> S1_UC10
+  system --> S1_UC9
+  
+  note right of S1_UC3
+    Manual entry with:
+    - Amount
+    - Date
+    - Category
+    - Payment method
+    - Notes
+  end note
+  
+  note right of S1_UC9
+    Alert triggers when
+    spending is close to
+    monthly limit
+  end note
+}
+
+' ============ Scenario 2: Optimizing Credit Card Rewards ============
+rectangle "Scenario 2: Optimizing Credit Card Rewards" {
+  usecase "Input Purchase Details" as S2_UC1
+  usecase "Select Spending Category" as S2_UC2
+  usecase "Query Card Database" as S2_UC3
+  usecase "Match Reward Rules" as S2_UC4
+  usecase "Calculate Rewards" as S2_UC5
+  usecase "Recommend Best Card" as S2_UC6
+  usecase "View Card Comparison" as S2_UC7
+  usecase "Apply Card to Purchase" as S2_UC8
+  usecase "Track Rewards Earned" as S2_UC9
+  
+  user --> S2_UC1
+  user --> S2_UC2
+  S2_UC1 --> S2_UC3
+  S2_UC2 --> S2_UC3
+  system --> S2_UC3
+  S2_UC3 --> S2_UC4
+  S2_UC4 --> S2_UC5
+  S2_UC5 --> S2_UC6
+  user --> S2_UC7
+  S2_UC6 --> S2_UC7
+  user --> S2_UC8
+  S2_UC8 --> S2_UC9
+  
+  note right of S2_UC3
+    Database contains:
+    - Card details
+    - Reward rates
+    - Category mappings
+    - Caps and limits
+  end note
+  
+  note right of S2_UC6
+    System recommends card
+    that offers maximum
+    rewards/cashback
+  end note
+}
+
+' ============ Scenario 3: Personalized Recommendations and Alerts ============
+rectangle "Scenario 3: Personalized Recommendations and Alerts" {
+  usecase "Track User Spending" as S3_UC1
+  usecase "Analyze Spending Patterns" as S3_UC2
+  usecase "Monitor Budget Status" as S3_UC3
+  usecase "Check Spending Threshold" as S3_UC4
+  usecase "Trigger Budget Alert" as S3_UC5
+  usecase "Send Notification" as S3_UC6
+  usecase "Generate Card Recommendations" as S3_UC7
+  usecase "Identify Reward Opportunities" as S3_UC8
+  usecase "Suggest New Cards to Open" as S3_UC9
+  usecase "View Alerts" as S3_UC10
+  usecase "Review Recommendations" as S3_UC11
+  usecase "Configure Preferences" as S3_UC12
+  
+  system --> S3_UC1
+  S3_UC1 --> S3_UC2
+  system --> S3_UC3
+  S3_UC3 --> S3_UC4
+  S3_UC4 --> S3_UC5
+  S3_UC5 --> S3_UC6
+  S3_UC2 --> S3_UC7
+  S3_UC2 --> S3_UC8
+  S3_UC7 --> S3_UC9
+  user --> S3_UC10
+  S3_UC6 --> S3_UC10
+  user --> S3_UC11
+  S3_UC9 --> S3_UC11
+  user --> S3_UC12
+  
+  note right of S3_UC4
+    Alert when user
+    approaches monthly
+    category limit
+  end note
+  
+  note right of S3_UC9
+    Based on spending history,
+    recommend cards that would
+    maximize rewards
+  end note
+}
+
+@enduml
+

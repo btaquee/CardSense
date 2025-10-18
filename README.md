@@ -18,12 +18,20 @@ Many Americans face numerous financial challenges under certain circumstances, p
 
 ## User Interface Specification
 
-### User Diagram
-[User Diagram]
+### Design Documentation
 
+📊 **[Complete UML Diagrams & Architecture Documentation](diagrams/)**
+
+Our comprehensive design documentation includes:
+- **Class Diagram**: Complete object-oriented structure with all entities and relationships
+- **Use Case Diagrams**: User interactions and system workflows for all features
+- **Entity Relationship Diagram**: Database schema and relationships
+- **Architecture Document**: System design, API specifications, and implementation details
 
 ### Class Diagram Draft
 ![Class Diagram Draft](cardsense_class_diagram_draft.png)
+
+For the complete, detailed class diagram with all attributes and methods, see [`diagrams/class_diagram.md`](diagrams/class_diagram.md)
 
 
 ## Screenshots
