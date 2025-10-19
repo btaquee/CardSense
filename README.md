@@ -19,11 +19,37 @@ Many Americans face numerous financial challenges under certain circumstances, p
 ## User Interface Specification
 
 ### User Diagram
+
+<!-- Place diagram to `img/` folder -->
+
 [User Diagram]
 
 
 ### Class Diagram Draft
-![Class Diagram Draft](cardsense_class_diagram_draft.png)
+![Class Diagram](img/cardsense_class_diagram_draft.png)
+
+
+## Project Structure
+
+```py
+CardSense/
+│
+├─ api/                   # Django PROJECT (global config/container)
+│
+├─ accounts/              # Django APP: authentication & user management
+├─ transactions/          # Django APP: user transactions (manual/CSV), CRUD, signals
+├─ budgets/               # Django APP: single monthly budget per user + alert thresholds/events
+├─ cards/                 # Django APP: card products and reward rules
+├─ optimizer/             # Django APP: best-card recommendation engine (service endpoints)
+│
+├─ web/                   # React web app (the UI)
+│
+├─ venv/                  # Python virtual environment (local only; not shared)
+├─ db.sqlite3             # Dev database (local)
+├─ manage.py              # Django CLI helper (runserver, migrate, etc.)
+└─ README.md              # Project overview & quickstart
+```
+
 
 
 ## Screenshots
@@ -33,52 +59,30 @@ Here is our program look like:
 [Insert Picture]
 
 
+
 ## Installation/Usage
 
-### Prerequisites
-- Python 3.x
-- Node.js and npm
-- Git
-
-### First Time Setup
-
-#### 1. Clone the Repository
+1. Clone the Repository
 ```bash
 git clone https://github.com/btaquee/CardSense.git
-cd CardSense
 ```
 
-#### 2. Backend Setup (Django)
-Open a terminal and run:
-```bash
-# Create Python virtual environment
-python -m venv venv
+2. Install dependencies
 
-# Activate virtual environment
-# On Windows:
-.\venv\Scripts\Activate.ps1
-# On macOS/Linux:
-# source venv/bin/activate
+- React: `npm install`
+- Install Django under virtual environment: 
+    - Activate virtual environment: `.\venv\Scripts\Activate.ps1`
+    - Then run `pip install Django`
 
-# Install Django dependencies
-pip install django djangorestframework django-cors-headers
+3. Running the Website
 
-# Run database migrations
-python manage.py migrate
-```
-
-#### 3. Frontend Setup (React)
-Open a **NEW** terminal window and run:
-```bash
-# Navigate to web folder
+```bush
 cd web
-
-# Install React dependencies
-npm install
+npm start
 ```
+Website should live on http://localhost:3000/
 
-### Running the Application
-
+<!-- 
 You need **TWO terminal windows** running simultaneously:
 
 #### Terminal 1 - Django Backend
@@ -123,24 +127,14 @@ Press `CTRL+C` in each terminal window to stop the servers.
 - Django commands: Run from `CardSense/` (project root)
 - React commands: Run from `CardSense/web/` (web folder)
 
-⚠️ **Virtual Environment**: Always activate the virtual environment before running Django commands.
+⚠️ **Virtual Environment**: Always activate the virtual environment before running Django commands. 
+-->
 
-## Project Structure
 
-```
-CardSense/
-├── accounts/              # Django app for authentication & user management
-├── api/                   # Django project configuration
-├── web/                   # React frontend application
-│   ├── src/              # React source files
-│   ├── public/           # Static files
-│   └── package.json      # Frontend dependencies
-├── venv/                  # Python virtual environment (created during setup)
-├── db.sqlite3             # SQLite database
-└── manage.py              # Django management script
-```
 
-## Testing
+<!-- ## Testing
+
+I don't think user need this part. Don't show live to user
 
 Run backend tests:
 ```bash
@@ -151,5 +145,6 @@ python manage.py test
 Run frontend tests:
 ```bash
 # From CardSense/web/ directory
-npm test
+npm test 
 ```
+-->
