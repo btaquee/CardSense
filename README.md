@@ -62,22 +62,46 @@ Here is our program look like:
 
 ## Installation/Usage
 
-1. Clone the Repository
+**Prerequisites**
+- Python 3.x
+- Node.js and npm
+- Git
+
+**Clone the Repository**
 ```bash
 git clone https://github.com/btaquee/CardSense.git
 ```
 
-2. Install dependencies
+**Install dependencies**
 
-- React: `npm install`
-- Install Django under virtual environment: 
-    - Activate virtual environment: `.\venv\Scripts\Activate.ps1`
-    - Then run `pip install Django`
+Django
 
-3. Running the Website
+*Note that Django need run under virtual environment!*
+
+```py
+# Create virtual environment
+python -m venv venv
+
+# Activate it
+.\venv\Scripts\Activate.ps1      # Windows
+source venv/bin/activate         # macOS/Linux
+
+# Install Django 
+pip install Django
+```
+React
+
+```py
+# Switch to `web` folder
+cd web
+
+# Install React dependencies
+npm install
+```
+
+**Running the Website**
 
 ```bush
-cd web
 npm start
 ```
 Website should live on http://localhost:3000/
