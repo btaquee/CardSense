@@ -1,6 +1,6 @@
-The following text are written by AI that explain all folder, file, quick start guide to this projects.
+# Quick Project Start Guide
 
-# Project structure (what each thing is for)
+## Project structure (what each thing is for)
 
 ```
 CS180GROUP_PROJECT/
@@ -12,6 +12,8 @@ CS180GROUP_PROJECT/
 │  ├─ views.py            # Request handlers (return JSON)
 │  ├─ urls.py             # Routes for this app (e.g., /api/accounts/health/)
 │  └─ tests.py            # Unit tests for this app
+│
+├─ this project has more app here, follow same pattern
 │
 ├─ api/                   # Django PROJECT (global config/container)
 │  ├─ settings.py         # Installed apps, DB, CORS, REST, static/media paths
@@ -33,7 +35,7 @@ CS180GROUP_PROJECT/
 └─ Structure.md           # This structure explanation / team notes
 ```
 
-# How things connect
+## How things connect
 
 * **React (web)** calls the **Django API** via the base URL in `web/.env.development`:
 
@@ -44,7 +46,7 @@ CS180GROUP_PROJECT/
   * App router: `accounts/urls.py` (included at `/api/accounts/…`)
 * **CORS** in `api/settings.py` allows the React dev origin (`http://localhost:3000`) during development.
 
-# Day-to-day workflow
+## Day-to-day workflow
 
 **Start backend (Django)**
 
@@ -67,7 +69,7 @@ npm start
 * Visit `http://localhost:8000/api/accounts/health/` → should return JSON.
 * Open the browser console when `web` runs — API calls should succeed.
 
-# Conventions we follow
+## Conventions we follow
 
 * **API prefix**: all backend routes live under `/api/...` to avoid conflicts with the SPA router.
 * **One concern per app**: create a new Django **app** per domain (e.g., `transactions`, `rewards`, `budget`).
@@ -80,7 +82,7 @@ npm start
   * Static (CSS/JS/images for Django admin/DRF UI) → `STATIC_*` in `settings.py`
   * Media (user uploads like CSVs) → `MEDIA_*` in `settings.py`
 
-# Adding a new feature (example: “transactions”)
+## Adding a new feature (example: “transactions”)
 
 1. **Create app**
 
@@ -111,3 +113,7 @@ python manage.py migrate
 * **README.md**: keep the quickstart updated for new teammates.
 
 That’s it — clean split: **web = UI**, **api = data**, **apps = features**. This makes parallel work easy and keeps the codebase understandable for everyone.
+
+---
+
+<div align="right">* Most Content written by AI.*</div> 
