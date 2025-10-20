@@ -2,11 +2,14 @@ from django.contrib import admin
 from .models import Card, RewardRule, UserCard
 
 # Register your models here.
+# admin.site.register(Card)
+# admin.site.register(RewardRule)
+# admin.site.register(UserCard)
 
 @admin.register(Card)
 class CardAdmin(admin.ModelAdmin):
-    list_display = ("issuer", "name", "annual_fee", "ftf")
-    fields = ("name", "issuer", "annual_fee", "ftf")
+    list_display = ("issuer", "name", "annual_fee", "ftf", "coupon_name", "coupon_amount", "coupon_description", "coupon_frequency")
+    fields = ("name", "issuer", "annua-l_fee", "ftf", "coupon_name", "coupon_amount", "coupon_description", "coupon_frequency")
 
 @admin.register(RewardRule)
 class RewardRuleAdmin(admin.ModelAdmin):
