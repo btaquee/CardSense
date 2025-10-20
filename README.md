@@ -86,8 +86,10 @@ python -m venv venv
 .\venv\Scripts\Activate.ps1      # Windows
 source venv/bin/activate         # macOS/Linux
 
-# Install Django 
+# Install Django and API dependencies
 pip install Django
+pip install djangorestframework django
+pip install django-cors-headers
 ```
 React
 
