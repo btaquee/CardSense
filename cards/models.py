@@ -106,6 +106,4 @@ class RewardRule(models.Model):
     cap_amount = models.DecimalField("Cap Amount (annual $)", max_digits=6, decimal_places=0, null=True, blank=True)
     notes = models.TextField(blank=True, null=True)
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['card', 'category'], name='unique_card_category')
-        ]
+        pass
