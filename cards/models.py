@@ -69,7 +69,7 @@ class CardBenefit(models.Model):
     amount = models.DecimalField(max_digits=5, decimal_places=0, null=True, blank=True)
     category = models.CharField(max_length=255, choices=BENEFIT_CATEGORY, default=None)
     description = models.TextField(blank=True, null=True, default=None)
-    frequency = models.CharField(choices=FREQUENCY_CHOICES, default=None)
+    frequency = models.CharField(max_length=20, choices=FREQUENCY_CHOICES, default=None)
     
     def __str__(self):
         return f"{self.name} ({self.card.name})"
