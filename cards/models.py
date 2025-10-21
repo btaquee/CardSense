@@ -1,11 +1,13 @@
 from django.db import models
 from django.conf import settings
-from django.core.exceptions import ValidationError
+from multiselectfield import MultiSelectField
 
 # Create your models here.
 
+
 # Card base fixed info
 class Card(models.Model):
+
     ISSUER_CHOICES = [
         ("BANK OF AMERICA", "Bank of America"),
         ("CHASE", "Chase"),
@@ -17,31 +19,47 @@ class Card(models.Model):
         ("WELLS FARGO", "Wells Fargo"),
         ("OTHER", "Other"),
     ]
-    
+
     name = models.CharField(max_length=255)
     issuer = models.CharField(max_length=255, choices=ISSUER_CHOICES)
     annual_fee = models.DecimalField("Annual Fee ($)", max_digits=3, decimal_places=0)
     ftf = models.BooleanField("Foreign Transaction Fee", default=True)
 
-    # Coupons
-    coupon_name = models.CharField("Coupon Name", max_length=100, blank=True, null=True)
-    coupon_amount = models.DecimalField("Coupon Value ($)", max_digits=7, decimal_places=2, blank=True, null=True)
-    coupon_description = models.TextField("Coupon Description", blank=True, null=True)
-    coupon_frequency = models.CharField(
-        "Coupon Frequency",
-        max_length=20,
-        choices=[
-            ("ONCE", "One-time"),
-            ("MONTHLY", "Monthly"),
-            ("ANNUAL", "Annual"),
-        ],
-        blank=True,
-        null=True,
-    )
-
-
     def __str__(self):
-        return self.issuer + " " + self.name
+        return f"{self.issuer} {self.name}"
+
+
+
+# A card can have many coupons
+class CardBenefit(models.Model):
+
+    BENEFIT_CATEGORY = [
+        ("GENERAL", "General"),
+        ("DINING", "Dining"),
+        ("GROCERIES", "Groceries"),
+        ("TRAVEL", "Travel"),
+        ("ENTERTAINMENT", "Entertainment"),
+        ("OTHER", "Other"),
+    ]
+
+    FREQUENCY_CHOICES = [
+        ("ONCE", "One-time"),
+        ("MONTHLY", "Monthly"),
+        ("ANNUAL", "Annual"),
+        ("EVERY_4_5_YEARS", "Every 4/5 Years"),
+    ]
+
+    card = models.ForeignKey(Card, on_delete=models.CASCADE, related_name="benefits")
+    name = models.CharField(max_length=100)
+    amount = models.DecimalField(max_digits=5, decimal_places=0, default=None)
+    category = models.CharField(max_length=255, choices=BENEFIT_CATEGORY, default=None)
+    description = models.TextField(blank=True, null=True, default=None)
+    frequency = models.CharField(choices=FREQUENCY_CHOICES, default=None)
+    
+    def __str__(self):
+        return f"{self.name} ({self.card.name})"
+
+
 
 # User can add info to a card
 class UserCard(models.Model):
@@ -58,25 +76,36 @@ class UserCard(models.Model):
     def __str__(self):
         return f"{self.user.username} → {self.card.name}"
 
+
+
 # Reward rules for a card
 class RewardRule(models.Model):
+
+    CATEGORY_CHOICES = [
+        ("SELECTED_CATEGORIES", "Selected Categories"),
+        ("RENT", "Rent"),
+        ("ONLINE_SHOPPING", "Online Shopping"),
+        ("DINING", "Dining"),
+        ("GROCERIES", "Groceries"),
+        ("GAS", "Gas"),
+        ("GENERAL_TRAVEL", "General Travel"),
+        ("AIRLINE_TRAVEL", "Airline Travel"),
+        ("HOTEL_TRAVEL", "Hotel Travel"),
+        ("TRANSIT", "Transit"),
+        ("ENTERTAINMENT", "Entertainment"),
+        ("OTHER", "Other"),
+    ]
+
     card = models.ForeignKey(Card, on_delete=models.CASCADE, related_name='reward_rules')
-    category = models.CharField(max_length=255)
-    multiplier = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
-    cashback_percent = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
-    cap_amount = models.DecimalField(max_digits=5, decimal_places=0, null=True, blank=True)
-
-    def __str__(self):
-        if self.multiplier:
-            return f"{self.multiplier}x on {self.category} for {self.card}"
-        elif self.cashback_percent:
-            return f"{self.cashback_percent}% on {self.category} for {self.card}"
-        return f"1x on {self.category} (everything else) for {self.card}"
-
-    def clean(self):
-        if bool(self.multiplier) and bool(self.cashback_percent):
-            raise ValidationError("Only one of multiplier or cashback percent can be set")
-
+    multiplier = models.DecimalField("Multiplier (x or %)", max_digits=5, decimal_places=1, default=None)
+    category = MultiSelectField(
+        "Categories",
+        max_length=255,
+        choices=CATEGORY_CHOICES,
+        max_choices=len(CATEGORY_CHOICES),
+    )
+    cap_amount = models.DecimalField("Cap Amount (annual $)", max_digits=5, decimal_places=0, null=True, blank=True)
+    notes = models.TextField(blank=True, null=True)
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['card', 'category'], name='unique_card_category')
