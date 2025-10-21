@@ -1,8 +1,6 @@
 from django.db import models
 from django.conf import settings
 from multiselectfield import MultiSelectField
-# from django.db.models.signals import post_save
-# from django.dispatch import receiver
 
 # Create your models here.
 
@@ -24,26 +22,11 @@ class Card(models.Model):
 
     name = models.CharField(max_length=255)
     issuer = models.CharField(max_length=255, choices=ISSUER_CHOICES)
-    annual_fee = models.DecimalField("Annual Fee ($)", max_digits=3, decimal_places=0)
+    annual_fee = models.DecimalField("Annual Fee ($)", max_digits=4, decimal_places=0)
     ftf = models.BooleanField("Foreign Transaction Fee", default=True)
 
     def __str__(self):
         return f"{self.issuer} {self.name}"
-
-# Automatically add 1x "Other" reward if missing
-# @receiver(post_save, sender=Card)
-# def add_default_other_rule(sender, instance, created, **kwargs):
-#     if created:
-#         # Check if card already has a rule for "Other"
-#         has_other = instance.reward_rules.filter(category="OTHER").exists()
-#         if not has_other:
-#             from .models import RewardRule
-#             RewardRule.objects.create(
-#                 card=instance,
-#                 category="OTHER",
-#                 multiplier=1.0,
-#                 notes="Default reward for other categories"
-#             )
 
 # A card can have many coupons
 class CardBenefit(models.Model):
@@ -126,7 +109,3 @@ class RewardRule(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['card', 'category'], name='unique_card_category')
         ]
-
-
-# Run server
-# python manage.py runserver
