@@ -1,6 +1,8 @@
 from django.db import models
 from django.conf import settings
 from multiselectfield import MultiSelectField
+# from django.db.models.signals import post_save
+# from django.dispatch import receiver
 
 # Create your models here.
 
@@ -28,7 +30,20 @@ class Card(models.Model):
     def __str__(self):
         return f"{self.issuer} {self.name}"
 
-
+# Automatically add 1x "Other" reward if missing
+# @receiver(post_save, sender=Card)
+# def add_default_other_rule(sender, instance, created, **kwargs):
+#     if created:
+#         # Check if card already has a rule for "Other"
+#         has_other = instance.reward_rules.filter(category="OTHER").exists()
+#         if not has_other:
+#             from .models import RewardRule
+#             RewardRule.objects.create(
+#                 card=instance,
+#                 category="OTHER",
+#                 multiplier=1.0,
+#                 notes="Default reward for other categories"
+#             )
 
 # A card can have many coupons
 class CardBenefit(models.Model):
@@ -87,6 +102,7 @@ class RewardRule(models.Model):
         ("ONLINE_SHOPPING", "Online Shopping"),
         ("DINING", "Dining"),
         ("GROCERIES", "Groceries"),
+        ("PHARMACY", "Pharmacy"),
         ("GAS", "Gas"),
         ("GENERAL_TRAVEL", "General Travel"),
         ("AIRLINE_TRAVEL", "Airline Travel"),
@@ -97,7 +113,7 @@ class RewardRule(models.Model):
     ]
 
     card = models.ForeignKey(Card, on_delete=models.CASCADE, related_name='reward_rules')
-    multiplier = models.DecimalField("Multiplier (x or %)", max_digits=5, decimal_places=1, default=None)
+    multiplier = models.DecimalField("Multiplier (x or %)", max_digits=5, decimal_places=2, default=None)
     category = MultiSelectField(
         "Categories",
         max_length=255,
