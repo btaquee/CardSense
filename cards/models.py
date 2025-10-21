@@ -51,7 +51,7 @@ class CardBenefit(models.Model):
 
     card = models.ForeignKey(Card, on_delete=models.CASCADE, related_name="benefits")
     name = models.CharField(max_length=100)
-    amount = models.DecimalField(max_digits=5, decimal_places=0, default=None)
+    amount = models.DecimalField(max_digits=5, decimal_places=0, null=True, blank=True)
     category = models.CharField(max_length=255, choices=BENEFIT_CATEGORY, default=None)
     description = models.TextField(blank=True, null=True, default=None)
     frequency = models.CharField(choices=FREQUENCY_CHOICES, default=None)
