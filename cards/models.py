@@ -104,7 +104,7 @@ class RewardRule(models.Model):
         choices=CATEGORY_CHOICES,
         max_choices=len(CATEGORY_CHOICES),
     )
-    cap_amount = models.DecimalField("Cap Amount (annual $)", max_digits=5, decimal_places=0, null=True, blank=True)
+    cap_amount = models.DecimalField("Cap Amount (annual $)", max_digits=6, decimal_places=0, null=True, blank=True)
     notes = models.TextField(blank=True, null=True)
     class Meta:
         constraints = [

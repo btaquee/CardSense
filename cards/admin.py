@@ -14,8 +14,23 @@ class CardAdmin(admin.ModelAdmin):
 
 @admin.register(RewardRule)
 class RewardRuleAdmin(admin.ModelAdmin):
-    list_display = ("card", "multiplier", "category", "cap_amount", "notes")
+    list_display = ("card", "multiplier", "get_categories", "cap_amount", "notes")
     fields = ("card", "multiplier", "category", "cap_amount", "notes")
+    ordering = ["card", "-multiplier"]
+    
+    def get_categories(self, obj):
+        """Display categories in a more readable format"""
+        if obj.category:
+            # Get the choice labels instead of raw values
+            choice_dict = dict(RewardRule.CATEGORY_CHOICES)
+            
+            # MultiSelectField stores as a comma-separated string
+            categories = obj.category if isinstance(obj.category, list) else obj.category.split(',')
+            # Convert raw values to human-readable labels
+            readable_categories = [choice_dict.get(cat.strip(), cat.strip()) for cat in categories]
+            return ", ".join(readable_categories)
+        return "-"
+    get_categories.short_description = "Categories"
 
 
 @admin.register(UserCard)
@@ -36,4 +51,5 @@ class CardBenefitAdmin(admin.ModelAdmin):
             categories = obj.category if isinstance(obj.category, list) else [obj.category]
             return ", ".join(categories)
         return "-"
+
     get_categories.short_description = "Categories"
