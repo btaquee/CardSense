@@ -35,7 +35,7 @@ class RewardRuleAdmin(admin.ModelAdmin):
 
 @admin.register(UserCard)
 class UserCardAdmin(admin.ModelAdmin):
-    list_display = ("user", "card","is_active", "notes")
+    list_display = ("user", "card", "is_active", "notes")
     fields = ("card", "user", "is_active", "notes")
 
 @admin.register(CardBenefit)
