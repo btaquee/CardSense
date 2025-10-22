@@ -1,6 +1,6 @@
+# AI generated script
 from django.core.management.base import BaseCommand
 from cards.models import Card, RewardRule
-
 
 class Command(BaseCommand):
     help = 'Add default 1x OTHER category reward rule to all cards that don\'t have one'

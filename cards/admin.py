@@ -18,6 +18,7 @@ class RewardRuleAdmin(admin.ModelAdmin):
     fields = ("card", "multiplier", "category", "cap_amount", "notes")
     ordering = ["card", "-multiplier"]
     
+    # AI generated function
     def get_categories(self, obj):
         """Display categories in a more readable format"""
         if obj.category:
