@@ -37,6 +37,7 @@ class CardBenefit(models.Model):
         ("GROCERIES", "Groceries"),
         ("TRAVEL", "Travel"),
         ("ENTERTAINMENT", "Entertainment"),
+        ("SUBSCRIPTIONS", "Subscriptions"),
         ("OTHER", "Other"),
     ]
 
