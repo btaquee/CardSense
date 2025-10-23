@@ -41,16 +41,18 @@ class UserCardAdmin(admin.ModelAdmin):
 
 @admin.register(CardBenefit)
 class CardBenefitAdmin(admin.ModelAdmin):
-    list_display = ("card", "name", "amount", "get_categories", "description", "frequency")
-    fields = ("card", "name", "amount", "category", "description", "frequency")
-    ordering = ["card", "name"]
+    list_display = ("card", "get_benefits_preview")
+    fields = ("card", "benefits")
+    ordering = ["card"]
     
-    def get_categories(self, obj):
-        """Display categories in a more readable format"""
-        if obj.category:
-            # Convert the stored format to readable format
-            categories = obj.category if isinstance(obj.category, list) else [obj.category]
-            return ", ".join(categories)
-        return "-"
-
-    get_categories.short_description = "Categories"
+    # AI generated function
+    def get_benefits_preview(self, obj):
+        """Display a preview of the benefits"""
+        if obj.benefits:
+            # Show first 50 characters of benefits
+            preview = obj.benefits[:50]
+            if len(obj.benefits) > 50:
+                preview += "..."
+            return preview
+        return "No benefits"
+    get_benefits_preview.short_description = "Benefits Preview"
