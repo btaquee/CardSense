@@ -28,35 +28,13 @@ class Card(models.Model):
     def __str__(self):
         return f"{self.issuer} {self.name}"
 
-# A card can have many coupons
+# A card can have many benefits(coupons, etc.)
 class CardBenefit(models.Model):
-
-    BENEFIT_CATEGORY = [
-        ("GENERAL", "General"),
-        ("DINING", "Dining"),
-        ("GROCERIES", "Groceries"),
-        ("TRAVEL", "Travel"),
-        ("ENTERTAINMENT", "Entertainment"),
-        ("SUBSCRIPTIONS", "Subscriptions"),
-        ("OTHER", "Other"),
-    ]
-
-    FREQUENCY_CHOICES = [
-        ("ONCE", "One-time"),
-        ("MONTHLY", "Monthly"),
-        ("ANNUAL", "Annual"),
-        ("EVERY_4_5_YEARS", "Every 4/5 Years"),
-    ]
-
     card = models.ForeignKey(Card, on_delete=models.CASCADE, related_name="benefits")
-    name = models.CharField(max_length=100)
-    amount = models.DecimalField(max_digits=5, decimal_places=0, null=True, blank=True)
-    category = models.CharField(max_length=255, choices=BENEFIT_CATEGORY, default=None)
-    description = models.TextField(blank=True, null=True, default=None)
-    frequency = models.CharField(max_length=20, choices=FREQUENCY_CHOICES, default=None)
-    
+    benefits = models.TextField("Benefits", blank=True, null=True)
+
     def __str__(self):
-        return f"{self.name} ({self.card.name})"
+        return f"Benefits for {self.card.name}"
 
 
 
