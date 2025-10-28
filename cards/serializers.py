@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Card, RewardRule, UserCard, CardBenefit
+from rest_framework.validators import UniqueTogetherValidator
 
 class RewardRuleSerializer(serializers.ModelSerializer):
     class Meta:
@@ -34,7 +35,22 @@ class CardSerializer(serializers.ModelSerializer):
         fields = ("id", "issuer", "name", "annual_fee", "ftf", "reward_rules", "benefits")
         
 class UserCardSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    is_active = serializers.BooleanField(required=False, default=True)
+    card_name = serializers.SerializerMethodField(read_only=True)
+
+    def get_card_name(self, obj):
+        return f"{obj.card.name} ({obj.card.issuer})"
+    
     class Meta:
         model = UserCard
-        fields = ("id", "card", "notes", "is_active")
+        fields = ("id", "card", "card_id", "card_name", "user", "notes", "is_active")
         read_only_fields = ()
+
+        validators = [
+            UniqueTogetherValidator(
+                queryset=UserCard.objects.all(),
+                fields=("user", "card"),
+                message="You already added this card to your wallet.",
+            )
+        ]
