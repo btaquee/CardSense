@@ -294,7 +294,11 @@ You can test the backend APIs directly:
 
 ## Important Notes
 
-1. **Authentication**: The backend uses session or JWT authentication. Make sure to implement login/register functionality before testing user-specific endpoints.
+1. **Authentication**: ⚠️ **NOT YET IMPLEMENTED IN BACKEND**
+   - Auth endpoints (`/api/accounts/auth/login/`, etc.) need to be implemented by backend team
+   - Frontend authentication is currently DISABLED for testing
+   - See `AUTHENTICATION_SETUP.md` for details on what's needed
+   - DO NOT re-enable authentication in frontend until backend implements auth endpoints
 
 2. **CORS**: Already configured in backend settings to allow `http://localhost:3000`
 
