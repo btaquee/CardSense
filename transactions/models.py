@@ -14,3 +14,6 @@ class Transaction(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     notes = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.merchant} - ${self.amount} ({self.user.username})"
