@@ -1,44 +1,45 @@
 import apiService from './api';
-import type { CreditCard, UserCard, CardRecommendation } from '../types';
+import type { CreditCard, UserCard, CardBenefit, RewardRule } from '../types';
 
 class CardService {
-  // Card database
-  async getAllCards(params?: { is_active?: boolean }) {
-    return apiService.get<CreditCard[]>('/cards/', params);
+  // Card database (read-only for users)
+  async getAllCards() {
+    return apiService.get<CreditCard[]>('/cards/cards/');
   }
 
   async getCard(id: number) {
-    return apiService.get<CreditCard>(`/cards/${id}/`);
+    return apiService.get<CreditCard>(`/cards/cards/${id}/`);
   }
 
-  async getCardRewards(id: number) {
-    return apiService.get<CreditCard>(`/cards/${id}/rewards/`);
+  // Reward rules (read-only)
+  async getRewardRules() {
+    return apiService.get<RewardRule[]>('/cards/reward-rules/');
   }
 
-  // User cards
+  // Card benefits (read-only)
+  async getCardBenefits() {
+    return apiService.get<CardBenefit[]>('/cards/card-benefits/');
+  }
+
+  // User cards (full CRUD for personalization)
   async getUserCards() {
-    return apiService.get<UserCard[]>('/user-cards/');
+    return apiService.get<UserCard[]>('/cards/user-cards/');
   }
 
-  async addUserCard(card_id: number, nickname?: string) {
-    return apiService.post<UserCard>('/user-cards/', { card_id, nickname });
+  async addUserCard(card_id: number, notes?: string, is_active: boolean = true) {
+    return apiService.post<UserCard>('/cards/user-cards/', { 
+      card: card_id, 
+      notes,
+      is_active 
+    });
+  }
+
+  async updateUserCard(id: number, data: { notes?: string; is_active?: boolean }) {
+    return apiService.patch<UserCard>(`/cards/user-cards/${id}/`, data);
   }
 
   async removeUserCard(id: number) {
-    return apiService.delete(`/user-cards/${id}/`);
-  }
-
-  async setPrimaryCard(id: number) {
-    return apiService.put(`/user-cards/${id}/primary/`);
-  }
-
-  // Recommendations
-  async getRecommendation(params: { amount: number; category_id: number }) {
-    return apiService.get<CardRecommendation>('/cards/recommend/', params);
-  }
-
-  async compareCards(params: { amount: number; category_id: number; card_ids: number[] }) {
-    return apiService.post<CardRecommendation[]>('/cards/compare/', params);
+    return apiService.delete(`/cards/user-cards/${id}/`);
   }
 }
 

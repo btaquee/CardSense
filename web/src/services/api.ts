@@ -68,6 +68,15 @@ class ApiService {
     }
   }
 
+  async patch<T>(url: string, data?: any): Promise<ApiResponse<T>> {
+    try {
+      const response = await this.api.patch<ApiResponse<T>>(url, data);
+      return response.data;
+    } catch (error) {
+      return this.handleError(error);
+    }
+  }
+
   async delete<T>(url: string): Promise<ApiResponse<T>> {
     try {
       const response = await this.api.delete<ApiResponse<T>>(url);
