@@ -1,7 +1,6 @@
 from django.db import models
 from django.conf import settings
-from cards.models import Card
-from cards.models import RewardRule
+from cards.models import Card, RewardRule
 
 # Create your models here.
 
