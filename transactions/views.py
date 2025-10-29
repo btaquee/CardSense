@@ -19,7 +19,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
     
     # AI help me understand the concept of two functions below, what is does in detail
     
-    # Records the API should return when a user make a GET request
+    # Records the API should return when a user makes a GET request
     # No filter. Will return all transactions for that user, sorted by created_at in descending order
     def get_queryset(self):
         return Transaction.objects.filter(user=self.request.user).order_by("-created_at")
