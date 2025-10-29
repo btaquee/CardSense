@@ -14,7 +14,6 @@ class HealthCheckView(APIView):
 
 
 class TransactionViewSet(viewsets.ModelViewSet):
-    # queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
     permission_classes = [permissions.IsAuthenticated]
     
