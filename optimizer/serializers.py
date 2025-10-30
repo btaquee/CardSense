@@ -10,7 +10,6 @@ class UserCategorySelectionSerializer(serializers.ModelSerializer):
         read_only_fields = ("user",)
 
     def create(self, validated_data):
-        validated_data['user'] = self.context['request'].user
         try:
             return super().create(validated_data)
         except IntegrityError:
