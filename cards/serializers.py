@@ -44,7 +44,7 @@ class UserCardSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = UserCard
-        fields = ("id", "card", "card_id", "card_name", "user", "notes", "is_active")
+        fields = ("id", "card", "card_name", "user", "notes", "is_active")
         read_only_fields = ()
 
         validators = [
