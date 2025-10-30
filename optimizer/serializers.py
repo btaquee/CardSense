@@ -4,10 +4,12 @@ from rest_framework.exceptions import ValidationError
 from .models import UserCategorySelection
 
 class UserCategorySelectionSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    
     class Meta:
         model = UserCategorySelection
         fields = ("id", "user", "category_tag")
-        read_only_fields = ("user",)
+        read_only_fields = ()
 
     def create(self, validated_data):
         try:
