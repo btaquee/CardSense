@@ -18,6 +18,12 @@ Many Americans face numerous financial challenges under certain circumstances, p
 
 ## User Interface Specification
 
+### User Diagram
+
+<!-- Place diagram to `img/` folder -->
+
+[User Diagram]
+
 ### Design Documentation
 
 📊 **[Complete UML Diagrams & Architecture Documentation](diagrams/)**
@@ -29,7 +35,30 @@ Our comprehensive design documentation includes:
 - **Architecture Document**: System design, API specifications, and implementation details
 
 ### Class Diagram Draft
-![Class Diagram Draft](cardsense_class_diagram_draft.png)
+![Class Diagram](img/cardsense_class_diagram_draft.png)
+
+
+## Project Structure
+
+```py
+CardSense/
+│
+├─ api/                   # Django PROJECT (global config/container)
+│
+├─ accounts/              # Django APP: authentication & user management
+├─ transactions/          # Django APP: user transactions (manual/CSV), CRUD, signals
+├─ budgets/               # Django APP: single monthly budget per user + alert thresholds/events
+├─ cards/                 # Django APP: card products and reward rules
+├─ optimizer/             # Django APP: best-card recommendation engine (service endpoints)
+│
+├─ web/                   # React web app (the UI)
+│
+├─ venv/                  # Python virtual environment (local only; not shared)
+├─ db.sqlite3             # Dev database (local)
+├─ manage.py              # Django CLI helper (runserver, migrate, etc.)
+└─ README.md              # Project overview & quickstart
+```
+
 
 For the complete, detailed class diagram with all attributes and methods, see [`diagrams/class_diagram.md`](diagrams/class_diagram.md)
 
@@ -41,52 +70,56 @@ Here is our program look like:
 [Insert Picture]
 
 
+
 ## Installation/Usage
 
-### Prerequisites
+**Prerequisites**
 - Python 3.x
 - Node.js and npm
 - Git
 
-### First Time Setup
-
-#### 1. Clone the Repository
+**Clone the Repository**
 ```bash
 git clone https://github.com/btaquee/CardSense.git
-cd CardSense
 ```
 
-#### 2. Backend Setup (Django)
-Open a terminal and run:
-```bash
-# Create Python virtual environment
+**Install dependencies**
+
+Django
+
+*Note that Django need run under virtual environment!*
+
+```py
+# Create virtual environment
 python -m venv venv
 
-# Activate virtual environment
-# On Windows:
-.\venv\Scripts\Activate.ps1
-# On macOS/Linux:
-# source venv/bin/activate
+# Activate it
+.\venv\Scripts\Activate.ps1      # Windows
+source venv/bin/activate         # macOS/Linux
 
-# Install Django dependencies
-pip install django djangorestframework django-cors-headers
-
-# Run database migrations
-python manage.py migrate
+# Install Django and API dependencies
+pip install Django
+pip install djangorestframework django
+pip install django-cors-headers
 ```
+React
 
-#### 3. Frontend Setup (React)
-Open a **NEW** terminal window and run:
-```bash
-# Navigate to web folder
+```py
+# Switch to `web` folder
 cd web
 
 # Install React dependencies
 npm install
 ```
 
-### Running the Application
+**Running the Website**
 
+```bush
+npm start
+```
+Website should live on http://localhost:3000/
+
+<!-- 
 You need **TWO terminal windows** running simultaneously:
 
 #### Terminal 1 - Django Backend
@@ -131,24 +164,14 @@ Press `CTRL+C` in each terminal window to stop the servers.
 - Django commands: Run from `CardSense/` (project root)
 - React commands: Run from `CardSense/web/` (web folder)
 
-⚠️ **Virtual Environment**: Always activate the virtual environment before running Django commands.
+⚠️ **Virtual Environment**: Always activate the virtual environment before running Django commands. 
+-->
 
-## Project Structure
 
-```
-CardSense/
-├── accounts/              # Django app for authentication & user management
-├── api/                   # Django project configuration
-├── web/                   # React frontend application
-│   ├── src/              # React source files
-│   ├── public/           # Static files
-│   └── package.json      # Frontend dependencies
-├── venv/                  # Python virtual environment (created during setup)
-├── db.sqlite3             # SQLite database
-└── manage.py              # Django management script
-```
 
-## Testing
+<!-- ## Testing
+
+I don't think user need this part. Don't show live to user
 
 Run backend tests:
 ```bash
@@ -159,5 +182,6 @@ python manage.py test
 Run frontend tests:
 ```bash
 # From CardSense/web/ directory
-npm test
+npm test 
 ```
+-->
