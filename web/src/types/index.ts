@@ -42,9 +42,8 @@ export interface TransactionCategory {
 
 export interface TransactionFormData {
   amount: number;
-  date: string;
-  category_id: number;
-  card_id?: number;
+  category: string;
+  card: number;
   merchant: string;
   notes?: string;
 }
@@ -67,12 +66,9 @@ export interface Budget {
 }
 
 export interface BudgetFormData {
-  category_id: number;
+  year_month: string;
   amount: number;
-  period: string;
-  start_date: string;
-  end_date: string;
-  alert_threshold: number;
+  thresholds: number[];
 }
 
 // Credit Card Types (matching backend models)

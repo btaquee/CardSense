@@ -1,9 +1,12 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Landing from './components/Landing';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import Dashboard from './components/Dashboard/Dashboard';
 import PrivateRoute from './components/Layout/PrivateRoute';
+import AddTransaction from './components/Transactions/AddTransaction';
+import CreateBudget from './components/Budgets/CreateBudget';
 
 const App: React.FC = () => {
   return (
@@ -22,6 +25,15 @@ const App: React.FC = () => {
         />
 
         <Route
+          path="/transactions/add"
+          element={
+            <PrivateRoute>
+              <AddTransaction />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
           path="/transactions"
           element={
             <PrivateRoute>
@@ -29,6 +41,15 @@ const App: React.FC = () => {
                 <h1 className="text-2xl font-bold">Transactions</h1>
                 <p className="text-gray-600 mt-2">Transaction management coming soon...</p>
               </div>
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/budgets/create"
+          element={
+            <PrivateRoute>
+              <CreateBudget />
             </PrivateRoute>
           }
         />
@@ -69,8 +90,8 @@ const App: React.FC = () => {
           }
         />
 
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<Landing />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

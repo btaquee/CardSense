@@ -3,8 +3,17 @@ import type { ApiResponse } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000/api';
 
+// Helper function to get CSRF token from cookies
+function getCookie(name: string): string | null {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
+  return null;
+}
+
 class ApiService {
   private api: AxiosInstance;
+  private csrfInitialized: boolean = false;
 
   constructor() {
     this.api = axios.create({
@@ -12,14 +21,23 @@ class ApiService {
       headers: {
         'Content-Type': 'application/json',
       },
+      withCredentials: true, // Important for session authentication
     });
 
-    // Request interceptor to add auth token
+    // Request interceptor to add CSRF token
     this.api.interceptors.request.use(
-      (config) => {
-        const token = localStorage.getItem('authToken');
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
+      async (config) => {
+        // Initialize CSRF token on first request
+        if (!this.csrfInitialized && config.method !== 'get') {
+          await this.initCSRF();
+        }
+        
+        // Add CSRF token for non-GET requests
+        if (config.method !== 'get') {
+          const csrfToken = getCookie('csrftoken');
+          if (csrfToken) {
+            config.headers['X-CSRFToken'] = csrfToken;
+          }
         }
         return config;
       },
@@ -30,15 +48,26 @@ class ApiService {
     this.api.interceptors.response.use(
       (response) => response,
       (error: AxiosError) => {
-        if (error.response?.status === 401) {
-          // Token expired or invalid
-          localStorage.removeItem('authToken');
+        if (error.response?.status === 401 || error.response?.status === 403) {
+          // Session expired or not authenticated
           localStorage.removeItem('user');
-          window.location.href = '/login';
+          // Don't redirect if we're already on auth pages
+          if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/register')) {
+            window.location.href = '/login';
+          }
         }
         return Promise.reject(error);
       }
     );
+  }
+
+  private async initCSRF(): Promise<void> {
+    try {
+      await axios.get(`${API_BASE_URL}/auth/csrf/`, { withCredentials: true });
+      this.csrfInitialized = true;
+    } catch (error) {
+      console.error('Failed to initialize CSRF token:', error);
+    }
   }
 
   async get<T>(url: string, params?: any): Promise<ApiResponse<T>> {

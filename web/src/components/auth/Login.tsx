@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-// import { authService } from '../../services/auth.service'; // TEMPORARY: Uncomment when backend ready
+import { authService } from '../../services/auth.service';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -16,25 +16,18 @@ const Login: React.FC = () => {
     setError('');
     setLoading(true);
 
-    // TEMPORARY: Skip backend API call for frontend testing
-    // Just navigate to dashboard immediately
-    setTimeout(() => {
-      navigate('/dashboard');
-    }, 500);
-
-    // REAL CODE (uncomment when backend is ready):
-    // try {
-    //   const response = await authService.login(formData);
-    //   if (response.success) {
-    //     navigate('/dashboard');
-    //   } else {
-    //     setError(response.error?.message || 'Login failed');
-    //   }
-    // } catch (err) {
-    //   setError('An unexpected error occurred');
-    // } finally {
-    //   setLoading(false);
-    // }
+    try {
+      const response = await authService.login(formData);
+      if (response.success) {
+        navigate('/dashboard');
+      } else {
+        setError(response.error?.message || 'Login failed');
+      }
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -1,34 +1,29 @@
 import apiService from './api';
-import type { User, LoginCredentials, RegisterData, AuthResponse } from '../types';
+import type { User, LoginCredentials, RegisterData } from '../types';
+
+interface AuthApiResponse {
+  user: User;
+}
 
 class AuthService {
-  // NOTE: Authentication endpoints not yet implemented in backend
-  // Backend will need to implement these under /api/accounts/ or /api/auth/
-  
   async login(credentials: LoginCredentials) {
-    // TODO: Backend needs to implement POST /api/accounts/auth/login/
-    const response = await apiService.post<AuthResponse>('/accounts/auth/login/', credentials);
+    const response = await apiService.post<AuthApiResponse>('/auth/login/', credentials);
     if (response.success && response.data) {
-      localStorage.setItem('authToken', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
     }
     return response;
   }
 
   async register(data: RegisterData) {
-    // TODO: Backend needs to implement POST /api/accounts/auth/register/
-    const response = await apiService.post<AuthResponse>('/accounts/auth/register/', data);
+    const response = await apiService.post<AuthApiResponse>('/auth/register/', data);
     if (response.success && response.data) {
-      localStorage.setItem('authToken', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
     }
     return response;
   }
 
   async logout() {
-    // TODO: Backend needs to implement POST /api/accounts/auth/logout/
-    await apiService.post('/accounts/auth/logout/');
-    localStorage.removeItem('authToken');
+    await apiService.post('/auth/logout/', {});
     localStorage.removeItem('user');
     window.location.href = '/login';
   }
@@ -46,27 +41,23 @@ class AuthService {
   }
 
   isAuthenticated(): boolean {
-    return !!localStorage.getItem('authToken');
+    return !!localStorage.getItem('user');
   }
 
   async getProfile() {
-    // TODO: Backend needs to implement GET /api/accounts/auth/me/ or /api/accounts/auth/profile/
-    return apiService.get<User>('/accounts/auth/me/');
+    return apiService.get<User>('/auth/me/');
   }
 
   async updateProfile(data: Partial<User>) {
-    // TODO: Backend needs to implement PATCH /api/accounts/auth/profile/
-    return apiService.patch<User>('/accounts/auth/profile/', data);
+    return apiService.patch<User>('/auth/profile/', data);
   }
 
   async requestPasswordReset(email: string) {
-    // TODO: Backend needs to implement POST /api/accounts/auth/password/reset/
-    return apiService.post('/accounts/auth/password/reset/', { email });
+    return apiService.post('/auth/password/reset/', { email });
   }
 
-  async confirmPasswordReset(data: { token: string; password: string }) {
-    // TODO: Backend needs to implement POST /api/accounts/auth/password/reset/confirm/
-    return apiService.post('/accounts/auth/password/reset/confirm/', data);
+  async confirmPasswordReset(data: { uid: string; token: string; new_password: string; new_password_confirm: string }) {
+    return apiService.post('/auth/password/reset/confirm/', data);
   }
 }
 

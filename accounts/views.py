@@ -11,6 +11,8 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.core.mail import send_mail
 from django.conf import settings
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import ensure_csrf_cookie
 from .serializers import (
     RegisterSerializer, LoginSerializer, UserSerializer,
     ProfileSerializer, PasswordResetSerializer, PasswordResetConfirmSerializer
@@ -28,6 +30,20 @@ class HealthCheckView(APIView):
         return Response({"status": "ok"}, status=status.HTTP_200_OK)
 
 
+# Get CSRF Token
+@method_decorator(ensure_csrf_cookie, name='dispatch')
+class GetCSRFToken(APIView):
+    permission_classes = [AllowAny]
+    
+    def get(self, request):
+        # This endpoint simply returns success and sets the CSRF cookie
+        # The actual token is sent as a cookie automatically by Django
+        return Response({
+            "success": True,
+            "message": "CSRF cookie set"
+        }, status=status.HTTP_200_OK)
+
+
 class RegisterView(APIView):
     permission_classes = [AllowAny]
     
@@ -38,42 +54,73 @@ class RegisterView(APIView):
             # log them in automatically after registration
             login(request, user)
             return Response({
-                "message": "User created successfully",
-                "user": UserSerializer(user).data
+                "success": True,
+                "data": {
+                    "user": UserSerializer(user).data
+                },
+                "message": "User created successfully"
             }, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({
+            "success": False,
+            "error": {
+                "code": "VALIDATION_ERROR",
+                "message": "Registration failed",
+                "details": serializer.errors
+            }
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
     
     def post(self, request):
-        serializer = LoginSerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        email = request.data.get('email')
+        password = request.data.get('password')
         
-        username = serializer.validated_data['username']
-        password = serializer.validated_data['password']
+        if not email or not password:
+            return Response({
+                "success": False,
+                "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Email and password are required"
+                }
+            }, status=status.HTTP_400_BAD_REQUEST)
         
-        user = authenticate(request, username=username, password=password)
+        # Try to find user by email and use username for authentication
+        try:
+            user_obj = User.objects.get(email=email)
+            user = authenticate(request, username=user_obj.username, password=password)
+        except User.DoesNotExist:
+            user = None
+        
         if user is not None:
             login(request, user)
             return Response({
-                "message": "Login successful",
-                "user": UserSerializer(user).data
+                "success": True,
+                "data": {
+                    "user": UserSerializer(user).data
+                },
+                "message": "Login successful"
             }, status=status.HTTP_200_OK)
         else:
             return Response({
-                "error": "Invalid username or password"
+                "success": False,
+                "error": {
+                    "code": "AUTHENTICATION_FAILED",
+                    "message": "Invalid email or password"
+                }
             }, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class LogoutView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]  # Allow logout even if not authenticated
     
     def post(self, request):
         logout(request)
-        return Response({"message": "Logout successful"}, status=status.HTTP_200_OK)
+        return Response({
+            "success": True,
+            "message": "Logout successful"
+        }, status=status.HTTP_200_OK)
 
 
 class MeView(APIView):
