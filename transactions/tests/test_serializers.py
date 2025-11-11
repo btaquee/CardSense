@@ -2,7 +2,6 @@ from decimal import Decimal
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from rest_framework.exceptions import ValidationError as DRFValidationError
-from transactions.models import Transaction
 from transactions.serializers import TransactionSerializer
 from cards.models import Card
 
