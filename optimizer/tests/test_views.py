@@ -5,7 +5,6 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 from unittest.mock import patch
 
 from optimizer.models import UserCategorySelection
-from optimizer.serializers import UserCategorySelectionSerializer
 from optimizer.views import (
     HealthCheckView,
     UserCategorySelectionViewSet,
