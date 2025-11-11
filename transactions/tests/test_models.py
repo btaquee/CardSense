@@ -2,7 +2,7 @@ from decimal import Decimal
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from cards.models import Card, RewardRule
+from cards.models import Card
 from transactions.models import Transaction
 
 '''
