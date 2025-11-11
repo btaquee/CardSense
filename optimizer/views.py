@@ -9,6 +9,8 @@ from .services import best_cards_for_category
 # Create your views here.
 # Check API health
 class HealthCheckView(APIView):
+    permission_classes = [permissions.AllowAny]
+    
     def get(self, request):
         return Response({"status": "ok"}, status=status.HTTP_200_OK)
 

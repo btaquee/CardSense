@@ -9,6 +9,8 @@ from .serializers import CardSerializer, RewardRuleSerializer, UserCardSerialize
 # Create your views here.
 # Check API health
 class HealthCheckView(APIView):
+    permission_classes = [permissions.AllowAny]
+    
     def get(self, request):
         return Response({"status": "ok"}, status=status.HTTP_200_OK)
 
