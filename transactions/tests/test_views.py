@@ -68,8 +68,8 @@ class TestTransactionViewSet(TestCase):
     def test_list_returns_only_current_user_sorted(self):
         # Create transactions with explicit timestamps to ensure ordering
         now = timezone.now()
-        t1 = self._create_tx(self.user1, "5.00", "A", created_at=now)
-        t2 = self._create_tx(self.user1, "9.00", "B", created_at=now + timedelta(seconds=1))
+        self._create_tx(self.user1, "5.00", "A", created_at=now)
+        self._create_tx(self.user1, "9.00", "B", created_at=now + timedelta(seconds=1))
         self._create_tx(self.user2, "11.00", "C")
         view = TransactionViewSet.as_view({"get": "list"})
         req = self.rf.get("/api/transactions/")
