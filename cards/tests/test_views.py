@@ -57,7 +57,7 @@ class TestHealthAndCardsRead(APITestCase):
         self.client.force_authenticate(self.user)
         r1 = self.client.get("/api/cards/cards/")
         self.assertEqual(r1.status_code, status.HTTP_200_OK)
-        self.assertTrue(len(r1.data) >= 2)
+        self.assertGreaterEqual(len(r1.data), 2)
         # minimal field checks
         row = r1.data[0]
         for k in ("id", "name", "issuer", "annual_fee", "ftf"):
