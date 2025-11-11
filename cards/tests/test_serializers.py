@@ -1,7 +1,6 @@
 from decimal import Decimal
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from rest_framework.exceptions import ValidationError as DRFValidationError
 from django.test import TestCase
 from cards.models import Card, CardBenefit, RewardRule, UserCard
 from cards.serializers import (
