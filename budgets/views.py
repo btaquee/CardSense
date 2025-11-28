@@ -103,8 +103,19 @@ class BudgetsView(APIView):
                     # Recompute MTD and evaluate thresholds
                     mtd = mtd_spend(user, year_month)
                     evaluate_thresholds(budget_obj, mtd)
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                return Response({
+                    "success": True,
+                    "data": serializer.data,
+                    "message": "Budget updated successfully"
+                }, status=status.HTTP_200_OK)
+            return Response({
+                "success": False,
+                "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Failed to update budget",
+                    "details": serializer.errors
+                }
+            }, status=status.HTTP_400_BAD_REQUEST)
         except MonthlyBudget.DoesNotExist:
             # Create new budget
             serializer = MonthlyBudgetSerializer(data=data)
@@ -113,8 +124,19 @@ class BudgetsView(APIView):
                 # Compute MTD and evaluate thresholds
                 mtd = mtd_spend(user, year_month)
                 evaluate_thresholds(budget_obj, mtd)
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                return Response({
+                    "success": True,
+                    "data": serializer.data,
+                    "message": "Budget created successfully"
+                }, status=status.HTTP_201_CREATED)
+            return Response({
+                "success": False,
+                "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "Failed to create budget",
+                    "details": serializer.errors
+                }
+            }, status=status.HTTP_400_BAD_REQUEST)
 
 
 class BudgetsHistoryView(APIView):
