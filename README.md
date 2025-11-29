@@ -112,12 +112,22 @@ cd web
 npm install
 ```
 
-**Running the Website**
+**Running the Program**
 
+In order to run the webiste, you need to have both terminal open, running frontend and backend at same time.
+
+1. First running frontend:
 ```bush
 npm start
 ```
-Website should live on http://localhost:3000/
+Website should live on http://localhost:3000/.
+
+2. Now run backend:
+
+use `cd ..` swtich to `Cardsense/` folder, then run backend
+```bush
+python manage.py runserver
+```
 
 <!-- 
 You need **TWO terminal windows** running simultaneously:
