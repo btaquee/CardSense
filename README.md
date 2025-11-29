@@ -122,7 +122,7 @@ npm start
 ```
 Website should live on http://localhost:3000/.
 
-2. Now run backend:
+2. Open a new terminal, now run backend:
 
 use `cd ..` swtich to `Cardsense/` folder, then run backend
 ```bush
