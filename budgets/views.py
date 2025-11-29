@@ -65,12 +65,48 @@ class BudgetsCurrentView(APIView):
             'percent_used': percent_used,
             'next_threshold': next_threshold
         })
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({
+            'success': True,
+            'data': serializer.data
+        }, status=status.HTTP_200_OK)
 
 
 class BudgetsView(APIView):
-    """POST /api/budgets/ - Create or upsert monthly budget for given or current year_month."""
+    """POST /api/budgets/ - Create or upsert monthly budget for given or current year_month.
+       DELETE /api/budgets/?year_month=YYYY-MM - Delete budget for specified month."""
     permission_classes = [IsAuthenticated]
+    
+    def delete(self, request):
+        user = request.user
+        year_month = request.query_params.get('year_month')
+        
+        if not year_month:
+            # If no year_month provided, use current month
+            tz = get_user_timezone(user)
+            now_user_tz = django_timezone.now().astimezone(tz)
+            year_month = now_user_tz.strftime('%Y-%m')
+        
+        try:
+            budget_obj = MonthlyBudget.objects.get(user=user, year_month=year_month)
+            
+            # Delete associated budget alerts for this year_month
+            BudgetAlertEvent.objects.filter(user=user, year_month=year_month).delete()
+            
+            # Delete the budget
+            budget_obj.delete()
+            
+            return Response({
+                "success": True,
+                "message": "Budget and associated alerts deleted successfully"
+            }, status=status.HTTP_200_OK)
+        except MonthlyBudget.DoesNotExist:
+            return Response({
+                "success": False,
+                "error": {
+                    "code": "NOT_FOUND",
+                    "message": "Budget not found"
+                }
+            }, status=status.HTTP_404_NOT_FOUND)
     
     def post(self, request):
         user = request.user
@@ -202,7 +238,10 @@ class BudgetAlertsView(APIView):
         user = request.user
         alerts = BudgetAlertEvent.objects.filter(user=user).order_by('-fired_at')
         serializer = BudgetAlertEventSerializer(alerts, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({
+            'success': True,
+            'data': serializer.data
+        }, status=status.HTTP_200_OK)
 
 
 class BudgetAlertAckView(APIView):
@@ -216,6 +255,12 @@ class BudgetAlertAckView(APIView):
             alert.status = 'acknowledged'
             alert.save(update_fields=['status'])
             serializer = BudgetAlertEventSerializer(alert)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response({
+                'success': True,
+                'data': serializer.data
+            }, status=status.HTTP_200_OK)
         except BudgetAlertEvent.DoesNotExist:
-            return Response({'error': 'Alert not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({
+                'success': False,
+                'error': 'Alert not found'
+            }, status=status.HTTP_404_NOT_FOUND)

@@ -18,8 +18,9 @@ class BudgetService {
     return apiService.put<Budget>(`/budgets/${id}/`, data);
   }
 
-  async deleteBudget(id: number) {
-    return apiService.delete(`/budgets/${id}/`);
+  async deleteBudget(yearMonth?: string) {
+    const params = yearMonth ? `?year_month=${yearMonth}` : '';
+    return apiService.delete(`/budgets/${params}`);
   }
 
   async getBudgetStatus(id: number) {
@@ -34,6 +35,23 @@ class BudgetService {
 
   async getSummary() {
     return apiService.get<Budget[]>('/budgets/summary/');
+  }
+
+  async getCurrentBudget() {
+    return apiService.get<{
+      budget: number | null;
+      mtd: number;
+      percent_used: number;
+      next_threshold: number | null;
+    }>('/budgets/current/');
+  }
+
+  async getAlerts() {
+    return apiService.get<any[]>('/budgets/alerts/');
+  }
+
+  async acknowledgeAlert(id: number) {
+    return apiService.post(`/budgets/alerts/${id}/ack/`, {});
   }
 }
 

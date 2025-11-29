@@ -41,6 +41,16 @@ class CardService {
   async removeUserCard(id: number) {
     return apiService.delete(`/cards/user-cards/${id}/`);
   }
+
+  // Get rewards earned per card
+  async getCardRewards() {
+    return apiService.get<Array<{
+      card_id: number;
+      card_name: string;
+      card_issuer: string;
+      rewards_earned: number;
+    }>>('/cards/rewards/');
+  }
 }
 
 export const cardService = new CardService();

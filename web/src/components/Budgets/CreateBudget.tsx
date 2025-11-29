@@ -94,8 +94,8 @@ const CreateBudget: React.FC = () => {
           <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <h3 className="font-semibold text-blue-900 mb-2">About Monthly Budgets</h3>
             <p className="text-sm text-blue-800">
-              Set a monthly spending budget and get alerts when you reach specific thresholds
-              (e.g., 50%, 70%, 90%). This helps you track your spending and stay within your limits.
+              Set a monthly spending budget and customize alert thresholds (default: 50%, 70%, 90%). 
+              You'll be notified when your spending crosses these thresholds to help you stay within your limits.
             </p>
           </div>
 
@@ -216,17 +216,17 @@ const CreateBudget: React.FC = () => {
                 <p className="text-sm text-gray-700">
                   <strong>Example:</strong> With a ${formData.amount || '1000'} budget:
                 </p>
-                <ul className="mt-2 text-sm text-gray-600 space-y-1">
+                <ul className="mt-2 text-sm text-gray-600 space-y-1 list-disc list-inside">
                   <li>
-                    • Alert at ${((parseFloat(formData.amount) || 1000) * parseFloat(formData.threshold1) / 100).toFixed(2)} 
+                    Alert at ${((parseFloat(formData.amount) || 1000) * parseFloat(formData.threshold1) / 100).toFixed(2)} 
                     ({formData.threshold1}%)
                   </li>
                   <li>
-                    • Alert at ${((parseFloat(formData.amount) || 1000) * parseFloat(formData.threshold2) / 100).toFixed(2)}
+                    Alert at ${((parseFloat(formData.amount) || 1000) * parseFloat(formData.threshold2) / 100).toFixed(2)}
                     ({formData.threshold2}%)
                   </li>
                   <li>
-                    • Alert at ${((parseFloat(formData.amount) || 1000) * parseFloat(formData.threshold3) / 100).toFixed(2)}
+                    Alert at ${((parseFloat(formData.amount) || 1000) * parseFloat(formData.threshold3) / 100).toFixed(2)}
                     ({formData.threshold3}%)
                   </li>
                 </ul>
