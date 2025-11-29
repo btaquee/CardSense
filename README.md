@@ -114,7 +114,7 @@ npm install
 
 **Running the Program**
 
-In order to run the webiste, you need to have both terminal open, running frontend and backend at same time.
+In order to run the website, you need to have both terminals open, running the frontend and backend at the same time.
 
 1. First running frontend:
 ```bush
