@@ -13,6 +13,8 @@ import BudgetList from './components/Budgets/BudgetList';
 import BudgetAlerts from './components/Budgets/BudgetAlerts';
 import CardManagement from './components/Cards/CardManagement';
 import RewardsBreakdown from './components/Rewards/RewardsBreakdown';
+import Profile from './components/Profile/Profile';
+import Settings from './components/Profile/Settings';
 
 const App: React.FC = () => {
   return (
@@ -98,6 +100,24 @@ const App: React.FC = () => {
           element={
             <PrivateRoute>
               <CardManagement />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <Profile />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/settings"
+          element={
+            <PrivateRoute>
+              <Settings />
             </PrivateRoute>
           }
         />
