@@ -9,6 +9,9 @@ from .serializers import TransactionSerializer, TransactionCSVRowSerializer
 from rest_framework import viewsets, permissions
 import csv
 import io
+from datetime import datetime
+from budgets.models import MonthlyBudget
+from budgets.services import mtd_spend, evaluate_thresholds
 
 
 class HealthCheckView(APIView):
@@ -29,9 +32,45 @@ class TransactionViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Transaction.objects.filter(user=self.request.user).select_related('card').order_by("-created_at")
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({
+            'success': True,
+            'data': serializer.data
+        })
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response({
+            'success': True,
+            'data': serializer.data,
+            'message': 'Transaction created successfully'
+        }, status=status.HTTP_201_CREATED)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response({
+            'success': True,
+            'message': 'Transaction deleted successfully'
+        }, status=status.HTTP_200_OK)
+
     # Saves the transaction to the database
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+        
+        # After creating transaction, check if we need to fire budget alerts
+        now = datetime.now()
+        current_month = now.strftime('%Y-%m')
+        try:
+            budget = MonthlyBudget.objects.get(user=self.request.user, year_month=current_month)
+            mtd = mtd_spend(self.request.user, current_month)
+            evaluate_thresholds(budget, mtd)
+        except MonthlyBudget.DoesNotExist:
+            pass  # No budget set for this month
 
 class TransactionCSVImportView(APIView):
     permission_classes = [IsAuthenticated]
@@ -40,7 +79,10 @@ class TransactionCSVImportView(APIView):
     def post(self, request):
         if 'file' not in request.FILES:
             return Response(
-                {"detail": "No file uploaded under 'file'."},
+                {
+                    "success": False,
+                    "error": "No file uploaded under 'file'."
+                },
                 status=status.HTTP_400_BAD_REQUEST
             )
         
@@ -50,7 +92,10 @@ class TransactionCSVImportView(APIView):
             file_content = uploaded_file.read().decode('utf-8')
         except UnicodeDecodeError as e:
             return Response(
-                {"detail": f"File encoding error: {str(e)}. Please ensure the file is UTF-8 encoded."},
+                {
+                    "success": False,
+                    "error": f"File encoding error: {str(e)}. Please ensure the file is UTF-8 encoded."
+                },
                 status=status.HTTP_400_BAD_REQUEST
             )
         
@@ -96,8 +141,22 @@ class TransactionCSVImportView(APIView):
                 })
                 failed_count += 1
         
+        # After importing, check if we need to fire budget alerts
+        if imported_count > 0:
+            now = datetime.now()
+            current_month = now.strftime('%Y-%m')
+            try:
+                budget = MonthlyBudget.objects.get(user=request.user, year_month=current_month)
+                mtd = mtd_spend(request.user, current_month)
+                evaluate_thresholds(budget, mtd)
+            except MonthlyBudget.DoesNotExist:
+                pass  # No budget set for this month
+        
         return Response({
-            "imported_count": imported_count,
-            "failed_count": failed_count,
-            "results": results
+            "success": True,
+            "data": {
+                "imported_count": imported_count,
+                "failed_count": failed_count,
+                "results": results
+            }
         }, status=status.HTTP_200_OK)

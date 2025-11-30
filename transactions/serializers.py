@@ -6,10 +6,18 @@ from cards.models import Card, RewardRule
 from cards.models import UserCard
 from .models import Transaction
 
+class CardBasicSerializer(serializers.ModelSerializer):
+    """Basic card info for transactions"""
+    class Meta:
+        model = Card
+        fields = ("id", "name", "issuer")
+
 class TransactionSerializer(serializers.ModelSerializer):
+    card_details = CardBasicSerializer(source='card', read_only=True)
+    
     class Meta:
         model = Transaction
-        fields = ("id", "card", "merchant", "amount", "category", "created_at", "updated_at", "notes")
+        fields = ("id", "card", "card_details", "merchant", "amount", "category", "created_at", "updated_at", "notes")
         read_only_fields = ("id", "user", "created_at", "updated_at")
     
     # Amount cannot be negative

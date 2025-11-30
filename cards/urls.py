@@ -12,4 +12,5 @@ router.register(r"card-benefits", CardBenefitViewSet, basename="card-benefits")
 urlpatterns = [
     path("", include(router.urls)),
     path("health/", views.HealthCheckView.as_view(), name="health"),
+    path("rewards/", views.CardRewardsView.as_view(), name="card-rewards"),
 ]

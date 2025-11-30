@@ -6,7 +6,15 @@ import Register from './components/auth/Register';
 import Dashboard from './components/Dashboard/Dashboard';
 import PrivateRoute from './components/Layout/PrivateRoute';
 import AddTransaction from './components/Transactions/AddTransaction';
+import TransactionList from './components/Transactions/TransactionList';
+import CSVUpload from './components/Transactions/CSVUpload';
 import CreateBudget from './components/Budgets/CreateBudget';
+import BudgetList from './components/Budgets/BudgetList';
+import BudgetAlerts from './components/Budgets/BudgetAlerts';
+import CardManagement from './components/Cards/CardManagement';
+import RewardsBreakdown from './components/Rewards/RewardsBreakdown';
+import Profile from './components/Profile/Profile';
+import Settings from './components/Profile/Settings';
 
 const App: React.FC = () => {
   return (
@@ -34,13 +42,19 @@ const App: React.FC = () => {
         />
 
         <Route
+          path="/transactions/import"
+          element={
+            <PrivateRoute>
+              <CSVUpload />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
           path="/transactions"
           element={
             <PrivateRoute>
-              <div className="p-8">
-                <h1 className="text-2xl font-bold">Transactions</h1>
-                <p className="text-gray-600 mt-2">Transaction management coming soon...</p>
-              </div>
+              <TransactionList />
             </PrivateRoute>
           }
         />
@@ -58,10 +72,25 @@ const App: React.FC = () => {
           path="/budgets"
           element={
             <PrivateRoute>
-              <div className="p-8">
-                <h1 className="text-2xl font-bold">Budgets</h1>
-                <p className="text-gray-600 mt-2">Budget management coming soon...</p>
-              </div>
+              <BudgetList />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/budgets/alerts"
+          element={
+            <PrivateRoute>
+              <BudgetAlerts />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/rewards"
+          element={
+            <PrivateRoute>
+              <RewardsBreakdown />
             </PrivateRoute>
           }
         />
@@ -70,10 +99,25 @@ const App: React.FC = () => {
           path="/cards"
           element={
             <PrivateRoute>
-              <div className="p-8">
-                <h1 className="text-2xl font-bold">Cards</h1>
-                <p className="text-gray-600 mt-2">Card management coming soon...</p>
-              </div>
+              <CardManagement />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <Profile />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/settings"
+          element={
+            <PrivateRoute>
+              <Settings />
             </PrivateRoute>
           }
         />

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../../services/auth.service';
+import CardIcon from '../icons/CardIcon';
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
@@ -17,7 +18,8 @@ const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between h-16">
           <div className="flex">
-            <Link to="/dashboard" className="flex items-center">
+            <Link to="/dashboard" className="flex items-center space-x-2">
+              <CardIcon size={32} className="text-blue-600" />
               <span className="text-2xl font-bold text-blue-600">CardSense</span>
             </Link>
 
@@ -73,12 +75,14 @@ const Navbar: React.FC = () => {
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
                   <Link
                     to="/profile"
+                    onClick={() => setShowUserMenu(false)}
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
                     Profile
                   </Link>
                   <Link
                     to="/settings"
+                    onClick={() => setShowUserMenu(false)}
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
                     Settings

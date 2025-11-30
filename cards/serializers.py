@@ -38,13 +38,14 @@ class UserCardSerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
     is_active = serializers.BooleanField(required=False, default=True)
     card_name = serializers.SerializerMethodField(read_only=True)
+    card_id = serializers.IntegerField(source='card.id', read_only=True)
 
     def get_card_name(self, obj):
         return f"{obj.card.name} ({obj.card.issuer})"
     
     class Meta:
         model = UserCard
-        fields = ("id", "card", "card_name", "user", "notes", "is_active")
+        fields = ("id", "card", "card_id", "card_name", "user", "notes", "is_active")
         read_only_fields = ()
 
         validators = [

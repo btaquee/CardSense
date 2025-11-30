@@ -24,8 +24,12 @@ export interface Transaction {
   date: string;
   category_id: number;
   category?: TransactionCategory;
-  card_id?: number;
-  card?: CreditCard;
+  card: number;
+  card_details?: {
+    id: number;
+    name: string;
+    issuer: string;
+  };
   merchant: string;
   notes?: string;
   created_at: string;

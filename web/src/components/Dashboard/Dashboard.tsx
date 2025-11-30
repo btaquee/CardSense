@@ -73,12 +73,15 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
+          <Link to="/rewards" className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition cursor-pointer">
             <div className="text-sm text-gray-600 mb-2">Rewards Earned</div>
             <div className="text-2xl font-bold text-green-600">
               {formatCurrency(data?.summary.total_rewards_this_month || 0)}
             </div>
-          </div>
+            {(data?.summary.total_rewards_this_month ?? 0) > 0 && (
+              <div className="text-xs text-blue-600 mt-2">Click to view →</div>
+            )}
+          </Link>
 
           <div className="bg-white rounded-lg shadow p-6">
             <div className="text-sm text-gray-600 mb-2">Active Budgets</div>
@@ -87,12 +90,15 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
+          <Link to="/budgets/alerts" className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition cursor-pointer">
             <div className="text-sm text-gray-600 mb-2">Budget Alerts</div>
             <div className="text-2xl font-bold text-orange-600">
               {data?.summary.budget_alerts || 0}
             </div>
-          </div>
+            {(data?.summary.budget_alerts ?? 0) > 0 && (
+              <div className="text-xs text-blue-600 mt-2">Click to view →</div>
+            )}
+          </Link>
         </div>
 
         {/* Budget Status */}
@@ -159,7 +165,7 @@ const Dashboard: React.FC = () => {
         {/* Quick Actions */}
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Link
               to="/transactions/add"
               className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition text-center"
@@ -169,10 +175,18 @@ const Dashboard: React.FC = () => {
             </Link>
 
             <Link
+              to="/transactions/import"
+              className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-green-500 hover:bg-green-50 transition text-center"
+            >
+              <div className="text-3xl mb-2">📊</div>
+              <div className="font-medium">Import CSV</div>
+            </Link>
+
+            <Link
               to="/budgets/create"
               className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition text-center"
             >
-              <div className="text-3xl mb-2">📊</div>
+              <div className="text-3xl mb-2">💰</div>
               <div className="font-medium">Create Budget</div>
             </Link>
 

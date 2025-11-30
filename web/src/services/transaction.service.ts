@@ -10,30 +10,29 @@ class TransactionService {
     page?: number;
     page_size?: number;
   }) {
-    return apiService.get<Transaction[]>('/transactions/', params);
+    return apiService.get<Transaction[]>('/transactions/transactions/', params);
   }
 
   async getTransaction(id: number) {
-    return apiService.get<Transaction>(`/transactions/${id}/`);
+    return apiService.get<Transaction>(`/transactions/transactions/${id}/`);
   }
 
   async createTransaction(data: TransactionFormData) {
-    return apiService.post<Transaction>('/transactions/', data);
+    return apiService.post<Transaction>('/transactions/transactions/', data);
   }
 
   async updateTransaction(id: number, data: Partial<TransactionFormData>) {
-    return apiService.put<Transaction>(`/transactions/${id}/`, data);
+    return apiService.put<Transaction>(`/transactions/transactions/${id}/`, data);
   }
 
   async deleteTransaction(id: number) {
-    return apiService.delete(`/transactions/${id}/`);
+    return apiService.delete(`/transactions/transactions/${id}/`);
   }
 
-  async importCSV(file: File, onProgress?: (progress: number) => void) {
-    return apiService.uploadFile<{ rows_processed: number; rows_failed: number; errors?: string[] }>(
-      '/transactions/import/',
-      file,
-      onProgress
+  async importCSV(file: File) {
+    return apiService.uploadFile<{ imported_count: number; failed_count: number; results: any[] }>(
+      '/transactions/import-csv/',
+      file
     );
   }
 
