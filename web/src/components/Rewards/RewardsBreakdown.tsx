@@ -76,6 +76,25 @@ const RewardsBreakdown: React.FC = () => {
     ).join(' ');
   };
 
+  const getCategoryColor = (category: string) => {
+    const colors: Record<string, string> = {
+      'GROCERIES': 'bg-green-100 text-green-800',
+      'DINING': 'bg-orange-100 text-orange-800',
+      'GAS': 'bg-blue-100 text-blue-800',
+      'ONLINE_SHOPPING': 'bg-purple-100 text-purple-800',
+      'ENTERTAINMENT': 'bg-pink-100 text-pink-800',
+      'GENERAL_TRAVEL': 'bg-indigo-100 text-indigo-800',
+      'AIRLINE_TRAVEL': 'bg-cyan-100 text-cyan-800',
+      'HOTEL_TRAVEL': 'bg-teal-100 text-teal-800',
+      'TRANSIT': 'bg-yellow-100 text-yellow-800',
+      'PHARMACY': 'bg-emerald-100 text-emerald-800',
+      'RENT': 'bg-red-100 text-red-800',
+      'SELECTED_CATEGORIES': 'bg-slate-100 text-slate-800',
+      'OTHER': 'bg-gray-100 text-gray-800',
+    };
+    return colors[category] || 'bg-gray-100 text-gray-800';
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-50">
@@ -215,10 +234,10 @@ const RewardsBreakdown: React.FC = () => {
                             {transaction.merchant}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                            {transaction.card?.name || 'N/A'}
+                            {transaction.card_details?.name || 'N/A'}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                            <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getCategoryColor(transaction.category || 'OTHER')}`}>
                               {formatCategoryName(transaction.category || 'OTHER')}
                             </span>
                           </td>

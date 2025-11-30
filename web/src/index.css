@@ -68,21 +68,45 @@ code {
 .bg-gray-100 { background-color: #f3f4f6; }
 .bg-gray-200 { background-color: #e5e7eb; }
 .bg-blue-50 { background-color: #eff6ff; }
+.bg-blue-100 { background-color: #dbeafe; }
 .bg-blue-500 { background-color: #3b82f6; }
 .bg-blue-600 { background-color: #2563eb; }
+.bg-green-100 { background-color: #dcfce7; }
 .bg-green-500 { background-color: #22c55e; }
+.bg-orange-100 { background-color: #ffedd5; }
 .bg-orange-500 { background-color: #f97316; }
 .bg-red-100 { background-color: #fee2e2; }
 .bg-red-600 { background-color: #dc2626; }
+.bg-purple-100 { background-color: #f3e8ff; }
+.bg-pink-100 { background-color: #fce7f3; }
+.bg-cyan-100 { background-color: #cffafe; }
+.bg-teal-100 { background-color: #ccfbf1; }
+.bg-yellow-100 { background-color: #fef3c7; }
+.bg-emerald-100 { background-color: #d1fae5; }
+.bg-indigo-100 { background-color: #e0e7ff; }
+.bg-slate-100 { background-color: #f1f5f9; }
 
 .text-white { color: white; }
 .text-gray-500 { color: #6b7280; }
 .text-gray-600 { color: #4b5563; }
 .text-gray-700 { color: #374151; }
+.text-gray-800 { color: #1f2937; }
 .text-gray-900 { color: #111827; }
 .text-blue-600 { color: #2563eb; }
+.text-blue-800 { color: #1e40af; }
 .text-green-600 { color: #16a34a; }
+.text-green-800 { color: #166534; }
+.text-orange-800 { color: #9a3412; }
 .text-red-700 { color: #b91c1c; }
+.text-red-800 { color: #991b1b; }
+.text-purple-800 { color: #6b21a8; }
+.text-pink-800 { color: #9f1239; }
+.text-cyan-800 { color: #155e75; }
+.text-teal-800 { color: #115e59; }
+.text-yellow-800 { color: #854d0e; }
+.text-emerald-800 { color: #065f46; }
+.text-indigo-800 { color: #3730a3; }
+.text-slate-800 { color: #1e293b; }
 
 .text-xs { font-size: 0.75rem; }
 .text-sm { font-size: 0.875rem; }
@@ -204,22 +228,14 @@ a { text-decoration: none; }
 .text-lg { font-size: 1.125rem; }
 .font-extrabold { font-weight: 800; }
 
-.text-gray-800 { color: #1f2937; }
 .text-blue-100 { color: #dbeafe; }
 .text-blue-500 { color: #3b82f6; }
 .text-purple-600 { color: #9333ea; }
-.text-green-600 { color: #16a34a; }
 .text-yellow-600 { color: #ca8a04; }
 .text-red-600 { color: #dc2626; }
 .text-indigo-600 { color: #4f46e5; }
 
 .bg-gray-900 { background-color: #111827; }
-.bg-blue-100 { background-color: #dbeafe; }
-.bg-green-100 { background-color: #dcfce7; }
-.bg-purple-100 { background-color: #f3e8ff; }
-.bg-yellow-100 { background-color: #fef3c7; }
-.bg-red-100 { background-color: #fee2e2; }
-.bg-indigo-100 { background-color: #e0e7ff; }
 
 .rounded-xl { border-radius: 0.75rem; }
 .rounded-2xl { border-radius: 1rem; }

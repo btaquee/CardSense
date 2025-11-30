@@ -61,7 +61,12 @@ const TransactionList: React.FC = () => {
       'ONLINE_SHOPPING': 'bg-purple-100 text-purple-800',
       'ENTERTAINMENT': 'bg-pink-100 text-pink-800',
       'GENERAL_TRAVEL': 'bg-indigo-100 text-indigo-800',
+      'AIRLINE_TRAVEL': 'bg-cyan-100 text-cyan-800',
+      'HOTEL_TRAVEL': 'bg-teal-100 text-teal-800',
+      'TRANSIT': 'bg-yellow-100 text-yellow-800',
+      'PHARMACY': 'bg-emerald-100 text-emerald-800',
       'RENT': 'bg-red-100 text-red-800',
+      'SELECTED_CATEGORIES': 'bg-slate-100 text-slate-800',
       'OTHER': 'bg-gray-100 text-gray-800',
     };
     return colors[category] || 'bg-gray-100 text-gray-800';
