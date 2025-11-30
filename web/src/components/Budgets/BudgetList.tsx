@@ -1,12 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { budgetService } from '../../services/budget.service';
 import { formatCurrency } from '../../utils/formatters';
 import { TrendingUp, AlertCircle, CheckCircle, Trash2 } from 'lucide-react';
 
+interface Budget {
+  id: number;
+  year_month: string;
+  amount: number;
+  spent: number;
+  remaining: number;
+  percentage_used: number;
+  thresholds: number[];
+  fired_flags: number[];
+}
+
 const BudgetList: React.FC = () => {
-  const navigate = useNavigate();
-  const [currentBudget, setCurrentBudget] = useState<any>(null);
+  const [budgets, setBudgets] = useState<Budget[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -18,10 +28,10 @@ const BudgetList: React.FC = () => {
   const loadBudgets = async () => {
     try {
       setLoading(true);
-      const response = await budgetService.getCurrentBudget();
-      console.log('Budget response:', response);
+      const response = await budgetService.getAllBudgets();
+      console.log('All budgets response:', response);
       if (response.success && response.data) {
-        setCurrentBudget(response.data);
+        setBudgets(response.data);
       }
     } catch (err) {
       setError('Failed to load budgets');
@@ -31,22 +41,20 @@ const BudgetList: React.FC = () => {
     }
   };
 
-  const handleDelete = async () => {
-    if (!window.confirm('Are you sure you want to delete this budget? This action cannot be undone.')) {
+  const handleDelete = async (yearMonth: string) => {
+    if (!window.confirm(`Are you sure you want to delete the budget for ${formatMonthName(yearMonth)}? This action cannot be undone.`)) {
       return;
     }
 
     try {
       setError('');
-      const now = new Date();
-      const yearMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      setSuccess('');
       const response = await budgetService.deleteBudget(yearMonth);
       
       if (response.success) {
-        setSuccess('Budget deleted successfully!');
-        setTimeout(() => {
-          navigate('/dashboard');
-        }, 1500);
+        setSuccess(`Budget for ${formatMonthName(yearMonth)} deleted successfully!`);
+        loadBudgets(); // Reload the list
+        setTimeout(() => setSuccess(''), 3000);
       } else {
         setError('Failed to delete budget');
       }
@@ -54,6 +62,17 @@ const BudgetList: React.FC = () => {
       setError('Failed to delete budget');
       console.error('Error deleting budget:', err);
     }
+  };
+
+  const formatMonthName = (yearMonth: string) => {
+    const [year, month] = yearMonth.split('-');
+    const date = new Date(parseInt(year), parseInt(month) - 1, 1);
+    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  };
+
+  const getCurrentYearMonth = () => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   };
 
   const getStatusColor = (percentUsed: number) => {
@@ -69,6 +88,20 @@ const BudgetList: React.FC = () => {
     if (percentUsed >= 70) return 'Warning (70%+)';
     if (percentUsed >= 50) return 'On Track';
     return 'Good';
+  };
+
+  const getStatusIcon = (percentUsed: number) => {
+    if (percentUsed >= 90) {
+      return <AlertCircle className="text-red-600" size={24} />;
+    }
+    if (percentUsed >= 70) {
+      return <AlertCircle className="text-orange-600" size={24} />;
+    }
+    return <CheckCircle className="text-green-600" size={24} />;
+  };
+
+  const isCurrentMonth = (yearMonth: string) => {
+    return yearMonth === getCurrentYearMonth();
   };
 
   if (loading) {
@@ -96,13 +129,6 @@ const BudgetList: React.FC = () => {
           </Link>
         </div>
 
-        {/* Error Message */}
-        {error && (
-          <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-            {error}
-          </div>
-        )}
-
         {/* Success Message */}
         {success && (
           <div className="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
@@ -110,134 +136,108 @@ const BudgetList: React.FC = () => {
           </div>
         )}
 
-        {/* Current Budget */}
-        {currentBudget && currentBudget.budget ? (
-          <div className="bg-white rounded-lg shadow-lg p-8 mb-6">
-            <div className="flex justify-between items-start mb-6">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">Current Month's Budget</h2>
-                <p className="text-gray-600 mt-1">
-                  {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-                </p>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="text-right">
-                  <div className="text-sm text-gray-600">Budget Amount</div>
-                  <div className="text-3xl font-bold text-gray-900">
-                    {formatCurrency(currentBudget.budget)}
-                  </div>
-                </div>
-                <button
-                  onClick={handleDelete}
-                  className="flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
-                  title="Delete Budget"
-                >
-                  <Trash2 size={18} className="mr-2" />
-                  Delete
-                </button>
-              </div>
-            </div>
-
-            {/* Progress Section */}
-            <div className="mb-6">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium text-gray-700">
-                  Spent: {formatCurrency(currentBudget.mtd)}
-                </span>
-                <span className="text-sm font-medium text-gray-700">
-                  {(currentBudget.percent_used * 100).toFixed(1)}% used
-                </span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
-                <div
-                  className={`h-4 rounded-full transition-all ${getStatusColor(currentBudget.percent_used * 100)}`}
-                  style={{ width: `${Math.min(currentBudget.percent_used * 100, 100)}%` }}
-                ></div>
-              </div>
-            </div>
-
-            {/* Stats Grid */}
-            <div className="grid grid-cols-3 gap-4 mb-6">
-              <div className="text-center p-4 bg-gray-50 rounded-lg">
-                <div className="text-sm text-gray-600 mb-1">Spent</div>
-                <div className="text-xl font-bold text-gray-900">
-                  {formatCurrency(currentBudget.mtd)}
-                </div>
-              </div>
-              <div className="text-center p-4 bg-gray-50 rounded-lg">
-                <div className="text-sm text-gray-600 mb-1">Remaining</div>
-                <div className="text-xl font-bold text-green-600">
-                  {formatCurrency(currentBudget.budget - currentBudget.mtd)}
-                </div>
-              </div>
-              <div className="text-center p-4 bg-gray-50 rounded-lg">
-                <div className="text-sm text-gray-600 mb-1">Status</div>
-                <div className={`text-lg font-semibold ${
-                  currentBudget.percent_used * 100 >= 90 ? 'text-red-600' :
-                  currentBudget.percent_used * 100 >= 70 ? 'text-orange-600' :
-                  'text-green-600'
-                }`}>
-                  {getStatusText(currentBudget.percent_used * 100)}
-                </div>
-              </div>
-            </div>
-
-            {/* Threshold Indicators */}
-            <div className="border-t pt-6">
-              <h3 className="text-sm font-semibold text-gray-700 mb-3">Alert Thresholds</h3>
-              <div className="space-y-2">
-                {[50, 70, 90].map((threshold) => {
-                  const reached = currentBudget.percent_used * 100 >= threshold;
-                  return (
-                    <div key={threshold} className="flex items-center justify-between text-sm">
-                      <div className="flex items-center">
-                        {reached ? (
-                          <CheckCircle className="text-orange-500 mr-2" size={16} />
-                        ) : (
-                          <div className="w-4 h-4 mr-2 border-2 border-gray-300 rounded-full"></div>
-                        )}
-                        <span className={reached ? 'text-gray-900 font-medium' : 'text-gray-600'}>
-                          {threshold}% threshold ({formatCurrency(currentBudget.budget * (threshold / 100))})
-                        </span>
-                      </div>
-                      {reached && (
-                        <span className="text-orange-600 text-xs">Reached</span>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="bg-white rounded-lg shadow p-12 text-center">
-            <TrendingUp size={64} className="mx-auto text-gray-400 mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No budget set for this month</h3>
-            <p className="text-gray-600 mb-6">Create a monthly budget to track your spending</p>
-            <Link
-              to="/budgets/create"
-              className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-            >
-              Create Budget
-            </Link>
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+            {error}
           </div>
         )}
 
-        {/* Info Box */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <div className="flex items-start">
-            <AlertCircle className="text-blue-600 mr-3 mt-1 flex-shrink-0" size={24} />
-            <div>
-              <h3 className="font-semibold text-blue-900 mb-2">How Budgets Work</h3>
-              <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
-                <li>Set one budget amount per month</li>
-                <li>All transactions automatically count toward your budget</li>
-                <li>Get alerts at custom thresholds (defaults: 50%, 70%, and 90%)</li>
-                <li>Create a new budget each month to keep tracking</li>
-              </ul>
+        {/* Budgets List */}
+        {budgets.length === 0 ? (
+          <div className="bg-white rounded-lg shadow p-16 text-center">
+            <div className="max-w-md mx-auto">
+              <div className="mb-6">
+                <div className="mx-auto w-24 h-24 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center">
+                  <TrendingUp size={48} className="text-blue-600" />
+                </div>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">No budgets yet</h3>
+              <p className="text-gray-600 mb-8 text-lg">
+                Create a monthly budget to track your spending and receive alerts
+              </p>
+              <Link
+                to="/budgets/create"
+                className="inline-flex items-center justify-center px-8 py-4 text-white text-lg font-semibold rounded-lg transform hover:scale-105 transition-all shadow-lg bg-blue-600 hover:bg-blue-700"
+              >
+                Create Your First Budget
+              </Link>
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="space-y-4">
+            {budgets.map((budget) => (
+              <div
+                key={budget.id}
+                className={`bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition ${
+                  isCurrentMonth(budget.year_month) ? 'border-2 border-blue-500' : ''
+                }`}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center space-x-4">
+                    {getStatusIcon(budget.percentage_used)}
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900">
+                        {formatMonthName(budget.year_month)}
+                        {isCurrentMonth(budget.year_month) && (
+                          <span className="ml-2 text-xs bg-blue-500 text-white px-2 py-1 rounded">
+                            CURRENT
+                          </span>
+                        )}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        Budget: {formatCurrency(budget.amount)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-gray-900">
+                      {formatCurrency(budget.spent)}
+                    </div>
+                    <p className="text-sm text-gray-500">
+                      {formatCurrency(budget.remaining)} remaining
+                    </p>
+                  </div>
+                </div>
+
+                {/* Progress Bar */}
+                <div className="mb-4">
+                  <div className="flex justify-between text-sm text-gray-600 mb-1">
+                    <span>{getStatusText(budget.percentage_used)}</span>
+                    <span className="font-semibold">
+                      {budget.percentage_used.toFixed(1)}%
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-3">
+                    <div
+                      className={`h-3 rounded-full transition-all ${getStatusColor(
+                        budget.percentage_used
+                      )}`}
+                      style={{
+                        width: `${Math.min(budget.percentage_used, 100)}%`,
+                      }}
+                    ></div>
+                  </div>
+                </div>
+
+                {/* Threshold Info */}
+                <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                  <div className="text-sm text-gray-600">
+                    Alerts at:{' '}
+                    {budget.thresholds.map((t) => `${(t * 100).toFixed(0)}%`).join(', ')}
+                  </div>
+                  <button
+                    onClick={() => handleDelete(budget.year_month)}
+                    className="inline-flex items-center px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition text-sm font-medium"
+                  >
+                    <Trash2 size={16} className="mr-1" />
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Back to Dashboard */}
         <div className="mt-8 text-center">
@@ -254,4 +254,3 @@ const BudgetList: React.FC = () => {
 };
 
 export default BudgetList;
-

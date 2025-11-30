@@ -21,6 +21,12 @@ const CreateBudget: React.FC = () => {
     e.preventDefault();
     setError('');
 
+    // Prevent creating budgets for past months
+    if (formData.year_month < currentYearMonth) {
+      setError('Cannot create budget for past months');
+      return;
+    }
+
     if (!formData.amount || parseFloat(formData.amount) <= 0) {
       setError('Budget amount must be greater than 0');
       return;
@@ -69,7 +75,7 @@ const CreateBudget: React.FC = () => {
     });
   };
 
-  // Generate month options (current month + next 11 months)
+  // Generate month options (current month + next 11 months) - no past months allowed
   const monthOptions = Array.from({ length: 12 }, (_, i) => {
     const date = new Date(currentDate.getFullYear(), currentDate.getMonth() + i, 1);
     const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;

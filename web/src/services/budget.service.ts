@@ -3,7 +3,11 @@ import type { Budget, BudgetFormData } from '../types';
 
 class BudgetService {
   async getBudgets(params?: { is_active?: boolean }) {
-    return apiService.get<Budget[]>('/budgets/', params);
+    return apiService.get<any[]>('/budgets/', params);
+  }
+  
+  async getAllBudgets() {
+    return apiService.get<any[]>('/budgets/');
   }
 
   async getBudget(id: number) {

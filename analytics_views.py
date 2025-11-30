@@ -63,8 +63,11 @@ class DashboardView(APIView):
                 'created_at': t.created_at.isoformat()
             })
         
-        # Count active budgets
-        active_budgets = MonthlyBudget.objects.filter(user=user).count()
+        # Count active budgets (current month and future only)
+        active_budgets = MonthlyBudget.objects.filter(
+            user=user,
+            year_month__gte=current_month
+        ).count()
         
         # Count pending budget alerts
         budget_alerts_count = BudgetAlertEvent.objects.filter(

@@ -72,9 +72,37 @@ class BudgetsCurrentView(APIView):
 
 
 class BudgetsView(APIView):
-    """POST /api/budgets/ - Create or upsert monthly budget for given or current year_month.
+    """GET /api/budgets/ - List all budgets for the user.
+       POST /api/budgets/ - Create or upsert monthly budget for given or current year_month.
        DELETE /api/budgets/?year_month=YYYY-MM - Delete budget for specified month."""
     permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        """List all budgets for the user, ordered by year_month descending."""
+        user = request.user
+        budgets = MonthlyBudget.objects.filter(user=user).order_by('-year_month')
+        
+        # Calculate spending for each budget
+        result = []
+        for budget in budgets:
+            mtd = mtd_spend(user, budget.year_month)
+            percent_used = float(mtd / budget.amount) if budget.amount > 0 else 0.0
+            
+            result.append({
+                'id': budget.id,
+                'year_month': budget.year_month,
+                'amount': float(budget.amount),
+                'spent': float(mtd),
+                'remaining': float(budget.amount - mtd),
+                'percentage_used': percent_used * 100,
+                'thresholds': budget.thresholds,
+                'fired_flags': budget.fired_flags
+            })
+        
+        return Response({
+            'success': True,
+            'data': result
+        }, status=status.HTTP_200_OK)
     
     def delete(self, request):
         user = request.user
