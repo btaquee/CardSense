@@ -1,5 +1,7 @@
 # How to View Your Diagrams
 
+Architecture & Design of this project see [here](./Architecture.md).
+
 ## 🌐 Use PlantUML Online Viewer
 
 ### Simple 3 Steps:

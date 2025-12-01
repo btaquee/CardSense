@@ -1,5 +1,5 @@
 # CardSense - Complete Beginner's Guide 🎓
-
+A complete beginner
 Welcome to CardSense! This guide will help you understand everything about this project, even if you're brand new to software development.
 
 ---

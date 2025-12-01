@@ -16,29 +16,82 @@
 
 Many Americans face numerous financial challenges under certain circumstances, particularly during the pandemic. A large group of cardholders can’t pay their credit card bill in one, resulting in them paying high interest fees. On the other hand, many cardholders may or may not be able to pay their bill in one, but those who use only a single or a very few number of cards miss out on potential rewards that would have been earned by using more suitable cards for specific categories, such as groceries, gas, and dining. Our web app addresses both problems separately and together: a budget tracker to reduce interest costs, and a card-rewards optimizer to help users earn more on ordinary spending.
 
-## User Interface Specification
+## Overview
 
-### User Diagram
+<img src="./img/CardSense%20Overview.png" alt="CardSense Overview" width="500">
 
-<!-- Place diagram to `img/` folder -->
 
-[User Diagram]
 
-### Design Documentation
 
-📊 **[Complete UML Diagrams & Architecture Documentation](diagrams/)**
+## Installation/Usage
 
-Our comprehensive design documentation includes:
-- **Class Diagram**: Complete object-oriented structure with all entities and relationships
-- **Use Case Diagrams**: User interactions and system workflows for all features
-- **Entity Relationship Diagram**: Database schema and relationships
-- **Architecture Document**: System design, API specifications, and implementation details
+To run this project on your local PC:
 
-### Class Diagram Draft
-![Class Diagram](img/cardsense_class_diagram_draft.png)
+### Prerequisites
+- Python 3.x
+- Node.js and npm
+- Git
 
+### Clone the Repository
+```
+git clone https://github.com/btaquee/CardSense.git
+```
+
+### Install dependencies
+
+**Django**
+
+*Note that Django need run under virtual environment!*
+
+```py
+# Create virtual environment
+python -m venv venv
+
+# Activate it
+.\venv\Scripts\Activate.ps1      # Windows
+source venv/bin/activate         # macOS/Linux
+
+# Install Django and API dependencies
+pip install Django
+pip install djangorestframework django
+pip install django-cors-headers
+```
+**React**
+
+```
+# Switch to `web` folder
+cd web
+
+# Install React dependencies
+npm install
+```
+
+### Running the Program
+
+In order to run the website, you need **TWO terminal windows** running simultaneously:
+
+1. First running frontend:
+```bush
+npm start
+```
+Website should live on http://localhost:3000/.
+
+2. Open a new terminal, now run backend:
+
+use `cd ..` swtich to `Cardsense/` folder, then run backend
+```bush
+python manage.py runserver
+```
+
+**Important Notes**
+
+Common Mistake: Make sure you run commands from the correct directory:
+- Django commands: Run from `CardSense/` (project root)
+- React commands: Run from `CardSense/web/` (web folder)
 
 ## Project Structure
+
+Primarily for developers' purposes, but if you want to know the structure of this project and the skill set. 
 
 ```py
 CardSense/
@@ -59,139 +112,11 @@ CardSense/
 └─ README.md              # Project overview & quickstart
 ```
 
+## Other Resource
 
-For the complete, detailed class diagram with all attributes and methods, see [`diagrams/class_diagram.md`](diagrams/class_diagram.md)
+Primarily for developers' purposes, but it contains many helpful resources that help you understand this project more, or even build on it.
 
-
-## Screenshots
-
-Here is our program look like:
-
-[Insert Picture]
-
-
-
-## Installation/Usage
-
-**Prerequisites**
-- Python 3.x
-- Node.js and npm
-- Git
-
-**Clone the Repository**
-```bash
-git clone https://github.com/btaquee/CardSense.git
-```
-
-**Install dependencies**
-
-Django
-
-*Note that Django need run under virtual environment!*
-
-```py
-# Create virtual environment
-python -m venv venv
-
-# Activate it
-.\venv\Scripts\Activate.ps1      # Windows
-source venv/bin/activate         # macOS/Linux
-
-# Install Django and API dependencies
-pip install Django
-pip install djangorestframework django
-pip install django-cors-headers
-```
-React
-
-```py
-# Switch to `web` folder
-cd web
-
-# Install React dependencies
-npm install
-```
-
-**Running the Program**
-
-In order to run the website, you need to have both terminals open, running the frontend and backend at the same time.
-
-1. First running frontend:
-```bush
-npm start
-```
-Website should live on http://localhost:3000/.
-
-2. Open a new terminal, now run backend:
-
-use `cd ..` swtich to `Cardsense/` folder, then run backend
-```bush
-python manage.py runserver
-```
-
-<!-- 
-You need **TWO terminal windows** running simultaneously:
-
-#### Terminal 1 - Django Backend
-```bash
-# Navigate to project root (CardSense folder)
-cd CardSense
-
-# Activate virtual environment
-# Windows:
-.\venv\Scripts\Activate.ps1
-# macOS/Linux:
-# source venv/bin/activate
-
-# Start Django server
-python manage.py runserver
-```
-✅ Backend runs at: **http://127.0.0.1:8000/**
-
-#### Terminal 2 - React Frontend
-```bash
-# Navigate to web folder
-cd CardSense/web
-
-# Start React dev server
-npm start
-```
-✅ Frontend runs at: **http://localhost:3000/**
-
-### Testing the Setup
-
-1. **Backend Health Check**: Visit http://127.0.0.1:8000/api/accounts/health/
-   - Should return: `{"status":"ok"}`
-
-2. **Frontend**: Visit http://localhost:3000
-   - Should display the React application
-
-### Stopping the Servers
-Press `CTRL+C` in each terminal window to stop the servers.
-
-### Important Notes
-⚠️ **Common Mistake**: Make sure you run commands from the correct directory:
-- Django commands: Run from `CardSense/` (project root)
-- React commands: Run from `CardSense/web/` (web folder)
-
-⚠️ **Virtual Environment**: Always activate the virtual environment before running Django commands. 
--->
-
-
-
-<!-- ## Testing
-
-I don't think user need this part. Don't show live to user
-
-Run backend tests:
-```bash
-# From CardSense/ directory with venv activated
-python manage.py test
-```
-
-Run frontend tests:
-```bash
-# From CardSense/web/ directory
-npm test 
-```
--->
+1. [Complete Beginner's Guide](./resource/Beginner%20Guide.md)
+2. [Project Summary](./resource/Project%20Summary.md)
+3. [Set Up Guide](./resource/Set%20Up%20Guide.md)
+4. [Diagram](./resource/diagrams/)
