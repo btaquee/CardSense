@@ -7,7 +7,8 @@ from cards.models import Card, RewardRule
 
 class Transaction(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="transactions")
-    card = models.ForeignKey(Card, on_delete=models.CASCADE, related_name="transactions")
+    card = models.ForeignKey(Card, on_delete=models.CASCADE, related_name="transactions", null=True, blank=True)
+    recommended_card = models.ForeignKey(Card, on_delete=models.SET_NULL, related_name="recommended_transactions", null=True, blank=True)
     merchant = models.CharField(max_length=255)
     amount = models.DecimalField("Amount ($)", max_digits=10, decimal_places=2)
     category = models.CharField(max_length=255, choices=RewardRule.CATEGORY_CHOICES)
