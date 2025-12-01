@@ -61,7 +61,7 @@ class TestTransactionViewSet(TestCase):
         """helper to seed transactions with controlled created_at ordering"""
         t = Transaction.objects.create(
             user=user,
-            card=self.card,
+            card_actually_used=self.card,
             amount=Decimal(amount),
             merchant=merchant,
             category="DINING",
@@ -96,7 +96,7 @@ class TestTransactionViewSet(TestCase):
     def test_create_auto_assigns_user_and_saves(self):
         view = TransactionViewSet.as_view({"post": "create"})
         payload = {
-            "card": self.card.id,
+            "card_actually_used": self.card.id,
             "amount": "15.00",
             "merchant": "Target",
             "category": "GROCERIES",
@@ -184,7 +184,7 @@ class TestTransactionCSVImportView(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(resp.data["data"]["imported_count"], 1)
         tx = Transaction.objects.get(user=self.user, merchant="Store C")
-        self.assertEqual(tx.card, self.card)
+        self.assertEqual(tx.card_actually_used, self.card)
 
     def test_csv_import_with_date(self):
         """Test CSV import with date field."""

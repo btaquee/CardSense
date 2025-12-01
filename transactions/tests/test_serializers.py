@@ -10,11 +10,12 @@ from cards.models import Card
 Expectations
 ------------
 TransactionSerializer
-- Serializes all core fields: id, card, merchant, amount, category, created_at, updated_at, notes.
-- Automatically handles read-only fields: id, user, created_at, updated_at.
+- Serializes all core fields: id, card_actually_used, card_actually_used_details, recommended_card, recommended_card_details, merchant, amount, category, created_at, updated_at, notes.
+- Includes computed fields: actual_reward, optimal_reward, missed_reward, used_optimal_card.
+- Automatically handles read-only fields: id, user, created_at, updated_at, and computed reward fields.
 - Validates 'category' against RewardRule.CATEGORY_CHOICES.
 - Validates 'amount' as a positive decimal.
-- Accepts optional 'notes' (nullable/blank).
+- Accepts optional 'notes' and 'card_actually_used' (nullable/blank).
 - Prevents client from overriding 'user'.
 '''
 
@@ -34,7 +35,7 @@ class TestTransactionSerializer(TestCase):
 
     def test_valid_transaction_serialization(self):
         data = {
-            "card": self.card.id,
+            "card_actually_used": self.card.id,
             "merchant": "Amazon",
             "amount": "23.45",
             "category": "ONLINE_SHOPPING",  # Fixed: use valid category
@@ -48,12 +49,12 @@ class TestTransactionSerializer(TestCase):
         self.assertEqual(instance.category, "ONLINE_SHOPPING")
 
         rendered = TransactionSerializer(instance).data
-        for key in ("id", "card", "merchant", "amount", "category", "created_at", "updated_at", "notes"):
+        for key in ("id", "card_actually_used", "merchant", "amount", "category", "created_at", "updated_at", "notes"):
             self.assertIn(key, rendered)
 
     def test_invalid_category_rejected(self):
         data = {
-            "card": self.card.id,
+            "card_actually_used": self.card.id,
             "merchant": "eBay",
             "amount": "15.00",
             "category": "INVALID",
@@ -65,7 +66,7 @@ class TestTransactionSerializer(TestCase):
 
     def test_negative_amount_rejected(self):
         data = {
-            "card": self.card.id,
+            "card_actually_used": self.card.id,
             "merchant": "Nike",
             "amount": "-10.00",
             "category": "ONLINE_SHOPPING",  # Fixed: use valid category
@@ -76,7 +77,7 @@ class TestTransactionSerializer(TestCase):
 
     def test_notes_optional(self):
         data = {
-            "card": self.card.id,
+            "card_actually_used": self.card.id,
             "merchant": "Starbucks",
             "amount": "4.50",
             "category": "DINING",
@@ -89,7 +90,7 @@ class TestTransactionSerializer(TestCase):
     def test_readonly_fields_not_writable(self):
         # user tries to override user or id
         data = {
-            "card": self.card.id,
+            "card_actually_used": self.card.id,
             "merchant": "Target",
             "amount": "50.00",
             "category": "GROCERIES",

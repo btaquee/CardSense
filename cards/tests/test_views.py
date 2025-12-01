@@ -57,17 +57,17 @@ class TestHealthAndCardsRead(APITestCase):
         self.client.force_authenticate(self.user)
         r1 = self.client.get("/api/cards/cards/")
         self.assertEqual(r1.status_code, status.HTTP_200_OK)
-        self.assertGreaterEqual(len(r1.data), 2)
+        self.assertGreaterEqual(len(r1.data['data']), 2)
         # minimal field checks
-        row = r1.data[0]
+        row = r1.data['data'][0]
         for k in ("id", "name", "issuer", "annual_fee", "ftf"):
             self.assertIn(k, row)
 
         r2 = self.client.get(f"/api/cards/cards/{self.card1.id}/")
         self.assertEqual(r2.status_code, status.HTTP_200_OK)
         # nested read-only pieces present
-        self.assertIn("reward_rules", r2.data)
-        self.assertIn("benefits", r2.data)
+        self.assertIn("reward_rules", r2.data['data'])
+        self.assertIn("benefits", r2.data['data'])
 
     def test_cards_readonly_methods_blocked(self):
         self.client.force_authenticate(self.user)
@@ -87,28 +87,28 @@ class TestRewardRulesAndUserCards(APITestCase):
         self.client.force_authenticate(self.u1)
         r = self.client.get("/api/cards/reward-rules/")
         self.assertEqual(r.status_code, status.HTTP_200_OK)
-        self.assertGreaterEqual(len(r.data), 1)
-        self.assertIn("multiplier", r.data[0])
-        self.assertIn("category", r.data[0])
+        self.assertGreaterEqual(len(r.data['data']), 1)
+        self.assertIn("multiplier", r.data['data'][0])
+        self.assertIn("category", r.data['data'][0])
 
     def test_user_cards_lists_only_current_user(self):
         self.client.force_authenticate(self.u1)
         r = self.client.get("/api/cards/user-cards/")
         self.assertEqual(r.status_code, status.HTTP_200_OK)
-        self.assertEqual(r.data, [])  # u1 has none
+        self.assertEqual(r.data['data'], [])  # u1 has none
 
         # add one for u1; should now appear
         uc = UserCard.objects.create(user=self.u1, card=self.card, is_active=True)
         r2 = self.client.get("/api/cards/user-cards/")
         self.assertEqual(r2.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(r2.data), 1)
-        self.assertEqual(r2.data[0]["id"], uc.id)
+        self.assertEqual(len(r2.data['data']), 1)
+        self.assertEqual(r2.data['data'][0]["id"], uc.id)
 
     def test_user_cards_create_uses_request_user(self):
         self.client.force_authenticate(self.u1)
         r = self.client.post("/api/cards/user-cards/", {"card": self.card.id}, format="json")
         self.assertEqual(r.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(r.data["card"], self.card.id)
+        self.assertEqual(r.data['data']["card"], self.card.id)
         # duplicate should fail (unique (user, card))
         r_dup = self.client.post("/api/cards/user-cards/", {"card": self.card.id}, format="json")
         self.assertEqual(r_dup.status_code, status.HTTP_400_BAD_REQUEST)

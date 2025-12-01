@@ -9,7 +9,9 @@ from transactions.models import Transaction
 Expectations
 ------------
 Transaction
-- Must link to a valid User and Card (FKs; CASCADE on delete).
+- Must link to a valid User (FK; CASCADE on delete).
+- card_actually_used is optional (FK to Card; SET_NULL on delete, null=True, blank=True).
+- recommended_card is optional (FK to Card; SET_NULL on delete, null=True, blank=True).
 - category must be one of RewardRule.CATEGORY_CHOICES:
   Valid choices: SELECTED_CATEGORIES, RENT, ONLINE_SHOPPING, DINING, GROCERIES,
   PHARMACY, GAS, GENERAL_TRAVEL, AIRLINE_TRAVEL, HOTEL_TRAVEL, TRANSIT,
@@ -17,8 +19,9 @@ Transaction
 - amount is a Decimal with 2 places; merchant is required text.
 - notes is optional (nullable/blank).
 - created_at auto-populates on insert; updated_at updates on save.
-- Reverse relations exist: user.transactions and card.transactions.
+- Reverse relations exist: user.transactions, card.used_transactions, card.recommended_transactions.
 - __str__ returns "<merchant> - $<amount> (<username>)".
+- Properties: actual_reward, optimal_reward, missed_reward, used_optimal_card.
 '''
 
 
@@ -34,7 +37,7 @@ class TestTransactionModel(TestCase):
         # valid category from RewardRule.CATEGORY_CHOICES
         t = Transaction(
             user=self.user,
-            card=self.card,
+            card_actually_used=self.card,
             merchant="Starbucks",
             amount=Decimal("4.25"),
             category="DINING",
@@ -48,7 +51,7 @@ class TestTransactionModel(TestCase):
         # invalid category should fail full_clean()
         bad = Transaction(
             user=self.user,
-            card=self.card,
+            card_actually_used=self.card,
             merchant="Foo",
             amount=Decimal("1.00"),
             category="NOT_A_REAL_TAG",
@@ -59,7 +62,7 @@ class TestTransactionModel(TestCase):
     def test_notes_optional_and_decimal_amount(self):
         t = Transaction.objects.create(
             user=self.user,
-            card=self.card,
+            card_actually_used=self.card,
             merchant="Amazon",
             amount=Decimal("19.99"),
             category="OTHER",
@@ -72,7 +75,7 @@ class TestTransactionModel(TestCase):
     def test_timestamps_auto_set(self):
         t = Transaction.objects.create(
             user=self.user,
-            card=self.card,
+            card_actually_used=self.card,
             merchant="Shell",
             amount=Decimal("35.00"),
             category="GAS",
@@ -88,19 +91,19 @@ class TestTransactionModel(TestCase):
     def test_reverse_relations_exist(self):
         t = Transaction.objects.create(
             user=self.user,
-            card=self.card,
+            card_actually_used=self.card,
             merchant="Trader Joe's",
             amount=Decimal("12.34"),
             category="GROCERIES",
         )
-        # user.transactions and card.transactions backrefs
+        # user.transactions and card.used_transactions backrefs
         self.assertIn(t, self.user.transactions.all())
-        self.assertIn(t, self.card.transactions.all())
+        self.assertIn(t, self.card.used_transactions.all())
 
     def test_str_format(self):
         t = Transaction.objects.create(
             user=self.user,
-            card=self.card,
+            card_actually_used=self.card,
             merchant="Chipotle",
             amount=Decimal("8.50"),
             category="DINING",
@@ -109,30 +112,33 @@ class TestTransactionModel(TestCase):
         self.assertIn("Chipotle - $8.50", s)
         self.assertIn("(u1)", s)
 
-    def test_cascade_on_user_and_card_delete(self):
-        Transaction.objects.create(
+    def test_cascade_on_user_delete_and_card_set_null(self):
+        tx = Transaction.objects.create(
             user=self.user,
-            card=self.card,
+            card_actually_used=self.card,
             merchant="7-Eleven",
             amount=Decimal("3.00"),
             category="OTHER",
         )
-        # delete user cascades
+        # delete user cascades (transactions deleted)
         self.user.delete()
         self.assertEqual(Transaction.objects.count(), 0)
 
         # re-create to test card cascade
         self.user = User.objects.create_user(username="u2", email="u2@example.com", password="pw")
         self.card = Card.objects.create(name="Custom Cash", issuer="CITI", annual_fee=0, ftf=True)
-        Transaction.objects.create(
+        tx = Transaction.objects.create(
             user=self.user,
-            card=self.card,
+            card_actually_used=self.card,
             merchant="Target",
             amount=Decimal("22.00"),
             category="OTHER",
         )
+        # Card deletion uses SET_NULL, so transaction remains but card_actually_used becomes None
         self.card.delete()
-        self.assertEqual(Transaction.objects.count(), 0)
+        tx.refresh_from_db()
+        self.assertIsNone(tx.card_actually_used)
+        self.assertEqual(Transaction.objects.count(), 1)  # Transaction still exists
 
 # To run the tests:
 # python manage.py test transactions.tests.test_models
