@@ -205,6 +205,6 @@ class TestPasswordResetConfirmSerializer(TestCase):
         self.assertIn("new_password_confirm", serializer.errors)
 
 
-# To run the tests:
+#To run tests:
 # python manage.py test accounts.tests.test_serializers
 

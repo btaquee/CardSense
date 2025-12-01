@@ -308,4 +308,4 @@ class TestTransactionCSVImportView(TestCase):
                 self.assertIn("errors", result)
 
 #To run tests:
-# python manage.py test transactions.tests.test_views
+# python manage.py test transactions
