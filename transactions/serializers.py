@@ -14,10 +14,11 @@ class CardBasicSerializer(serializers.ModelSerializer):
 
 class TransactionSerializer(serializers.ModelSerializer):
     card_details = CardBasicSerializer(source='card', read_only=True)
+    recommended_card_details = CardBasicSerializer(source='recommended_card', read_only=True)
     
     class Meta:
         model = Transaction
-        fields = ("id", "card", "card_details", "merchant", "amount", "category", "created_at", "updated_at", "notes")
+        fields = ("id", "card", "card_details", "recommended_card", "recommended_card_details", "merchant", "amount", "category", "created_at", "updated_at", "notes")
         read_only_fields = ("id", "user", "created_at", "updated_at")
     
     # Amount cannot be negative
@@ -28,7 +29,7 @@ class TransactionSerializer(serializers.ModelSerializer):
 
 
 class TransactionCSVRowSerializer(serializers.Serializer):
-    card = serializers.CharField(required=True)
+    card = serializers.CharField(required=False, allow_blank=True)
     merchant = serializers.CharField(required=True)
     amount = serializers.CharField(required=True)
     category = serializers.CharField(required=True)
@@ -68,7 +69,8 @@ class TransactionCSVRowSerializer(serializers.Serializer):
         
         card_value = value.strip() if value else ""
         if not card_value:
-            raise serializers.ValidationError("Card cannot be empty.")
+            # Card is optional now - return None
+            return None
         
         try:
             card_id = int(card_value)
@@ -115,17 +117,30 @@ class TransactionCSVRowSerializer(serializers.Serializer):
         return value if value else None
     
     def create(self, validated_data):
+        from optimizer.services import best_cards_for_category
+        
         user = self.context["user"]
-        card = validated_data["card"]
+        card = validated_data.get("card")  # Can be None now
         merchant = validated_data["merchant"]
         amount = validated_data["amount"]
         category = validated_data["category"]
         notes = validated_data.get("notes")
         date = validated_data.get("date")
         
+        # Get recommended card if no card specified
+        recommended_card = None
+        if category:
+            recommendation = best_cards_for_category(category, user)
+            if recommendation.get('best_card'):
+                try:
+                    recommended_card = Card.objects.get(id=recommendation['best_card']['card_id'])
+                except Card.DoesNotExist:
+                    pass
+        
         transaction = Transaction.objects.create(
             user=user,
             card=card,
+            recommended_card=recommended_card,
             merchant=merchant,
             amount=amount,
             category=category,

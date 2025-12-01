@@ -10,4 +10,5 @@ urlpatterns = [
     path('', include(router.urls)),
     path('health/', views.HealthCheckView.as_view(), name='health'),
     path('import-csv/', views.TransactionCSVImportView.as_view(), name='csv-import'),
+    path('recommend-card/', views.CardRecommendationView.as_view(), name='recommend-card'),
 ]

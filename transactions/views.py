@@ -12,6 +12,8 @@ import io
 from datetime import datetime
 from budgets.models import MonthlyBudget
 from budgets.services import mtd_spend, evaluate_thresholds
+from optimizer.services import best_cards_for_category
+from cards.models import Card
 
 
 class HealthCheckView(APIView):
@@ -60,7 +62,24 @@ class TransactionViewSet(viewsets.ModelViewSet):
 
     # Saves the transaction to the database
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        # Get recommended card based on category
+        category = serializer.validated_data.get('category')
+        recommended_card_id = None
+        
+        if category:
+            recommendation = best_cards_for_category(category, self.request.user)
+            if recommendation.get('best_card'):
+                recommended_card_id = recommendation['best_card']['card_id']
+        
+        # Save transaction with recommended card
+        if recommended_card_id:
+            try:
+                recommended_card = Card.objects.get(id=recommended_card_id)
+                serializer.save(user=self.request.user, recommended_card=recommended_card)
+            except Card.DoesNotExist:
+                serializer.save(user=self.request.user)
+        else:
+            serializer.save(user=self.request.user)
         
         # After creating transaction, check if we need to fire budget alerts
         now = datetime.now()
@@ -71,6 +90,35 @@ class TransactionViewSet(viewsets.ModelViewSet):
             evaluate_thresholds(budget, mtd)
         except MonthlyBudget.DoesNotExist:
             pass  # No budget set for this month
+
+class CardRecommendationView(APIView):
+    """Get card recommendation for a given category"""
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        category = request.data.get('category')
+        amount = request.data.get('amount', 0)
+        
+        if not category:
+            return Response(
+                {
+                    "success": False,
+                    "error": "Category is required"
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        recommendation = best_cards_for_category(category, request.user)
+        
+        return Response({
+            "success": True,
+            "data": {
+                "category": category,
+                "amount": amount,
+                "recommendation": recommendation
+            }
+        })
+
 
 class TransactionCSVImportView(APIView):
     permission_classes = [IsAuthenticated]
