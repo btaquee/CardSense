@@ -10,6 +10,40 @@ from transactions.models import Transaction
 from .models import MonthlyBudget, BudgetAlertEvent
 from .services import mtd_spend, evaluate_thresholds, get_user_timezone
 
+'''
+Expectations
+------------
+MonthlyBudget Model
+- Unique constraint on (user, year_month) pair.
+- Amount has to be positive (MinValueValidator).
+- thresholds is JSONField with default [0.5, 0.7, 0.9].
+- fired_flags is JSONField tracking which thresholds have fired.
+- String should be like "<username> - YYYY-MM: $<amount>".
+
+BudgetAlertEvent Model
+- Tracks when MTD spend goes over a threshold.
+- Fields are user, year_month, threshold, spend_at_fire, fired_at, status.
+- status defaults to 'pending', can be 'acknowledged'.
+
+Budget Services
+- mtd_spend(user, year_month), calculates month-to-date spending from transactions.
+- evaluate_thresholds(user, year_month), checks thresholds and fires alerts.
+- get_user_timezone(user), returns user's timezone (default is UTC).
+
+Budget API Endpoints
+- POST /api/budgets/: Creates or updates a monthly budget.
+- GET /api/budgets/current/: Returns current month budget with MTD spend and percentage used.
+- GET /api/budgets/history/: Returns budget history for last n months.
+- GET /api/budgets/alerts/: Lists budget alerts for user.
+- POST /api/budgets/alerts/{id}/ack/: Acknowledges an alert.
+- All endpoints require authentication.
+
+Budget Signals
+- Transaction create, update, delete triggers budget recalculation.
+- Threshold alerts are fired automatically when spend goes over thresholds.
+- fired_flags tracks which thresholds have already fired, so no duplicates.
+'''
+
 
 class BudgetModelTests(TestCase):
     """Test budget model creation and constraints."""
@@ -38,7 +72,7 @@ class BudgetModelTests(TestCase):
             year_month='2024-01',
             amount=Decimal('1000.00')
         )
-        # Try to create another with same user and year_month
+        #try to create another with same user and year_month
         with self.assertRaises(Exception):
             MonthlyBudget.objects.create(
                 user=self.user,
@@ -57,7 +91,7 @@ class BudgetServicesTests(TestCase):
             issuer='CHASE',
             annual_fee=Decimal('0')
         )
-        # Create a budget for current month
+        #create budget for current month
         tz = get_user_timezone(self.user)
         now = timezone.now().astimezone(tz)
         self.year_month = now.strftime('%Y-%m')
@@ -75,7 +109,7 @@ class BudgetServicesTests(TestCase):
     
     def test_mtd_spend_with_transactions(self):
         """Test MTD spend calculation with transactions."""
-        # Create transactions in current month
+        #create transactions in current month
         Transaction.objects.create(
             user=self.user,
             card=self.card,
@@ -95,7 +129,7 @@ class BudgetServicesTests(TestCase):
     
     def test_evaluate_thresholds_fires_alerts(self):
         """Test that thresholds fire alerts when crossed."""
-        # Add transaction that crosses 0.5 threshold (500/1000 = 0.5)
+        #add transaction that crosses 0.5 threshold (500/1000 = 0.5)
         Transaction.objects.create(
             user=self.user,
             card=self.card,
@@ -103,16 +137,16 @@ class BudgetServicesTests(TestCase):
             amount=Decimal('500.00'),
             category='GROCERIES'
         )
-        # Signal should have fired, refresh budget
+        #signal should have fired, refresh budget
         self.budget.refresh_from_db()
-        # Check that alert was created (signal already fired, so we should have 1)
+        #check that alert was created (signal already fired, so we should have 1)
         alerts = BudgetAlertEvent.objects.filter(user=self.user, year_month=self.year_month)
-        # Signal fires on transaction create, so we should have 1 alert
+        #signal fires on transaction create, so we should have 1 alert
         self.assertEqual(alerts.count(), 1)
         self.assertEqual(alerts.first().threshold, Decimal('0.50'))
         self.assertEqual(self.budget.fired_flags, [0.5])
         
-        # Add more to cross 0.7 threshold
+        #add more to cross 0.7 threshold
         Transaction.objects.create(
             user=self.user,
             card=self.card,
@@ -120,10 +154,10 @@ class BudgetServicesTests(TestCase):
             amount=Decimal('200.00'),
             category='DINING'
         )
-        # Signal should have fired, refresh budget
+        #signal should have fired, refresh budget
         self.budget.refresh_from_db()
         
-        # Should have 2 alerts now
+        #should have 2 alerts now
         alerts = BudgetAlertEvent.objects.filter(user=self.user, year_month=self.year_month)
         self.assertEqual(alerts.count(), 2)
         self.assertIn(0.7, self.budget.fired_flags)
@@ -185,7 +219,7 @@ class BudgetAPITests(TestCase):
             year_month=year_month,
             amount=Decimal('1000.00')
         )
-        # Add a transaction
+        #add a transaction
         Transaction.objects.create(
             user=self.user,
             card=self.card,
@@ -196,9 +230,9 @@ class BudgetAPITests(TestCase):
         response = self.client.get('/api/budgets/current/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
-        self.assertEqual(float(data['budget']), 1000.00)
-        self.assertEqual(float(data['mtd']), 300.00)
-        self.assertEqual(data['percent_used'], 0.3)
+        self.assertEqual(float(data['data']['budget']), 1000.00)
+        self.assertEqual(float(data['data']['mtd']), 300.00)
+        self.assertEqual(data['data']['percent_used'], 0.3)
     
     def test_history_budget(self):
         """Test GET /api/budgets/history/ returns last N months."""
@@ -230,7 +264,7 @@ class BudgetAPITests(TestCase):
             year_month=year_month,
             amount=Decimal('1000.00')
         )
-        # Create an alert
+        #Create an alert
         BudgetAlertEvent.objects.create(
             user=self.user,
             year_month=year_month,
@@ -241,8 +275,11 @@ class BudgetAPITests(TestCase):
         response = self.client.get('/api/budgets/alerts/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
-        self.assertEqual(len(data), 1)
-        self.assertEqual(float(data[0]['threshold']), 0.50)
+        alerts = data['data']
+        #find our specific alert (there might be others from previous tests)
+        our_alert = next((a for a in alerts if float(a['threshold']) == 0.50), None)
+        self.assertIsNotNone(our_alert)
+        self.assertEqual(float(our_alert['threshold']), 0.50)
     
     def test_ack_alert(self):
         """Test POST /api/budgets/alerts/{id}/ack/ acknowledges alert."""
@@ -292,7 +329,7 @@ class BudgetSignalTests(TestCase):
             amount=Decimal('500.00'),
             category='GROCERIES'
         )
-        # Check that alert was created
+        #Check that alert was created
         alerts = BudgetAlertEvent.objects.filter(user=self.user, year_month=self.year_month)
         self.assertEqual(alerts.count(), 1)
         self.budget.refresh_from_db()
@@ -310,7 +347,7 @@ class BudgetSignalTests(TestCase):
         # Update to cross threshold
         tx.amount = Decimal('500.00')
         tx.save()
-        # Should have fired alert
+        #Should have fired alert
         alerts = BudgetAlertEvent.objects.filter(user=self.user, year_month=self.year_month)
         self.assertEqual(alerts.count(), 1)
     
@@ -328,4 +365,8 @@ class BudgetSignalTests(TestCase):
         self.assertIn(0.5, self.budget.fired_flags)
         # Delete transaction
         tx.delete()
-        # MTD should be 0 now, but flags stay (that's fine for MVP)
+        # MTD should be 0 now, but flags stay
+
+
+#To run tests:
+# python manage.py test budgets
