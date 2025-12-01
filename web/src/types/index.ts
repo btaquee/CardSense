@@ -24,8 +24,14 @@ export interface Transaction {
   date: string;
   category_id: number;
   category?: TransactionCategory;
-  card: number;
+  card?: number;
   card_details?: {
+    id: number;
+    name: string;
+    issuer: string;
+  };
+  recommended_card?: number;
+  recommended_card_details?: {
     id: number;
     name: string;
     issuer: string;
@@ -47,7 +53,7 @@ export interface TransactionCategory {
 export interface TransactionFormData {
   amount: number;
   category: string;
-  card: number;
+  card?: number;
   merchant: string;
   notes?: string;
 }
@@ -153,6 +159,24 @@ export interface OptimizerResult {
     card_name: string;
     multiplier: number;
   }>;
+}
+
+export interface CardRecommendationResponse {
+  category: string;
+  amount?: number;
+  recommendation: {
+    best_card: {
+      card_id: number;
+      card_name: string;
+    } | null;
+    multiplier: number;
+    rationale: string;
+    top3: Array<{
+      card_id: number;
+      card_name: string;
+      multiplier: number;
+    }>;
+  };
 }
 
 // Alert Types
