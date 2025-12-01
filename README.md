@@ -18,7 +18,7 @@ Many Americans face numerous financial challenges under certain circumstances, p
 
 ## Overview
 
-<!-- <img src="./img/CardSense%20Overview.png" alt="CardSense Overview" width="500"> -->
+<img src="./img/CardSense%20Overview.png" alt="CardSense Overview" width="500">
 
 
 
