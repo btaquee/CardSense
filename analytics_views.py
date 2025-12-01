@@ -5,6 +5,7 @@ from transactions.models import Transaction
 from budgets.models import MonthlyBudget, BudgetAlertEvent
 from transactions.rewards import calculate_total_rewards
 from django.db.models import Sum
+from django.utils import timezone
 from datetime import datetime
 from decimal import Decimal
 
@@ -13,7 +14,7 @@ class DashboardView(APIView):
     
     def get(self, request):
         user = request.user
-        now = datetime.now()
+        now = timezone.now()  # Use timezone-aware datetime
         current_month = now.strftime('%Y-%m')
         
         # Get this month's spending
@@ -28,7 +29,7 @@ class DashboardView(APIView):
         )['total'] or Decimal('0.00')
         
         # Calculate rewards earned this month
-        month_start = datetime(now.year, now.month, 1)
+        month_start = timezone.make_aware(datetime(now.year, now.month, 1))
         rewards_earned = calculate_total_rewards(user, start_date=month_start)
         
         # Get current budget

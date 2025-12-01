@@ -155,6 +155,56 @@ const AddTransaction: React.FC = () => {
     );
   }
 
+  // Force user to add cards first
+  if (userCards.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-2xl mx-auto px-4">
+          <div className="bg-white rounded-lg shadow-xl p-8">
+            <div className="flex items-center justify-between mb-6">
+              <h1 className="text-3xl font-bold text-gray-900">Add Transaction</h1>
+              <Link
+                to="/dashboard"
+                className="text-blue-600 hover:text-blue-800 font-medium"
+              >
+                ← Back to Dashboard
+              </Link>
+            </div>
+
+            <div className="text-center py-8">
+              <div className="mx-auto w-16 h-16 bg-gradient-to-br from-red-100 to-orange-100 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              
+              <h2 className="text-xl font-bold text-gray-900 mb-2">No Cards in Your Wallet</h2>
+              <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                You need to add at least one credit card to your wallet before you can add transactions and get card recommendations.
+              </p>
+              
+              <Link
+                to="/cards"
+                className="inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition shadow-lg"
+              >
+                Add Cards to Your Wallet
+              </Link>
+              
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <Link
+                  to="/dashboard"
+                  className="text-blue-600 hover:text-blue-800 font-medium"
+                >
+                  ← Back to Dashboard
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-2xl mx-auto px-4">
@@ -172,18 +222,6 @@ const AddTransaction: React.FC = () => {
           {error && (
             <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
               {error}
-            </div>
-          )}
-
-          {userCards.length === 0 && (
-            <div className="mb-4 p-4 bg-blue-100 border border-blue-400 text-blue-800 rounded">
-              <p className="font-semibold">💡 Tip: Add cards for better recommendations</p>
-              <p className="text-sm mt-1">
-                You can still add transactions, but adding cards to your wallet will give you personalized recommendations.{' '}
-                <Link to="/cards" className="underline font-medium">
-                  Go to Cards
-                </Link>
-              </p>
             </div>
           )}
 
@@ -281,30 +319,6 @@ const AddTransaction: React.FC = () => {
                 </div>
               </div>
             )}
-
-            <div>
-              <label htmlFor="card" className="block text-sm font-medium text-gray-700 mb-1">
-                Card Used (Optional)
-              </label>
-              <p className="text-xs text-gray-500 mb-2">
-                Leave blank to use the recommended card above
-              </p>
-              <select
-                id="card"
-                name="card"
-                value={formData.card}
-                onChange={handleChange}
-                disabled={userCards.length === 0}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-              >
-                <option value="">Use recommended card</option>
-                {userCards.map((userCard) => (
-                  <option key={userCard.id} value={userCard.card_id}>
-                    {userCard.card_name || `Card ${userCard.card_id}`}
-                  </option>
-                ))}
-              </select>
-            </div>
 
             <div>
               <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">

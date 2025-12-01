@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { transactionService } from '../../services/transaction.service';
+import { cardService } from '../../services/card.service';
 import { Upload, FileText, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 
 interface UploadResult {
@@ -20,6 +21,20 @@ const CSVUpload: React.FC = () => {
   } | null>(null);
   const [error, setError] = useState('');
   const [dragActive, setDragActive] = useState(false);
+  const [userCards, setUserCards] = useState<any[]>([]);
+  const [loadingCards, setLoadingCards] = useState(true);
+
+  useEffect(() => {
+    loadUserCards();
+  }, []);
+
+  const loadUserCards = async () => {
+    const response = await cardService.getUserCards();
+    if (response.success && response.data) {
+      setUserCards(response.data.filter((card) => card.is_active));
+    }
+    setLoadingCards(false);
+  };
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -106,6 +121,64 @@ const CSVUpload: React.FC = () => {
     a.click();
     window.URL.revokeObjectURL(url);
   };
+
+  if (loadingCards) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-xl text-gray-600">Loading cards...</div>
+      </div>
+    );
+  }
+
+  // Force user to add cards first
+  if (userCards.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="bg-white rounded-lg shadow-xl p-8">
+            <div className="flex items-center justify-between mb-6">
+              <h1 className="text-3xl font-bold text-gray-900">Import Transactions (CSV)</h1>
+              <Link
+                to="/dashboard"
+                className="text-blue-600 hover:text-blue-800 font-medium"
+              >
+                ← Back to Dashboard
+              </Link>
+            </div>
+
+            <div className="text-center py-8">
+              <div className="mx-auto w-16 h-16 bg-gradient-to-br from-red-100 to-orange-100 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              
+              <h2 className="text-xl font-bold text-gray-900 mb-2">No Cards in Your Wallet</h2>
+              <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                You need to add at least one credit card to your wallet before you can import transactions and get card recommendations.
+              </p>
+              
+              <Link
+                to="/cards"
+                className="inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition shadow-lg"
+              >
+                Add Cards to Your Wallet
+              </Link>
+              
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <Link
+                  to="/dashboard"
+                  className="text-blue-600 hover:text-blue-800 font-medium"
+                >
+                  ← Back to Dashboard
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
