@@ -116,4 +116,7 @@ CardSense/
 
 Primarily for developers' purposes, but it contains many helpful resources that help you understand this project more, or even build on it.
 
-For the complete, detailed class diagram with all attributes and methods, see [`diagrams`](./diagrams/).
+1. [Complete Beginner's Guide](./resource/Beginner%20Guide.md)
+2. [Project Summary](./resource/Project%20Summary.md)
+3. [Set Up Guide](./resource/Set%20Up%20Guide.md)
+4. [Diagram](./resource/diagrams/)
