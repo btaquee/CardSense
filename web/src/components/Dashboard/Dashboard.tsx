@@ -152,10 +152,10 @@ const Dashboard: React.FC = () => {
                   <div>
                     <div className="font-medium">{transaction.merchant}</div>
                     <div className="text-xs text-gray-500">
-                      {formatDate(transaction.date)} • {transaction.category?.name}
+                      {formatDate(transaction.created_at)} • {transaction.category?.replace(/_/g, ' ')}
                     </div>
                   </div>
-                  <div className="font-semibold">{formatCurrency(transaction.amount)}</div>
+                  <div className="font-semibold">{formatCurrency(typeof transaction.amount === 'string' ? parseFloat(transaction.amount) : transaction.amount)}</div>
                 </div>
               ))}
             </div>

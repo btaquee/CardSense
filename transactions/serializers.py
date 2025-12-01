@@ -13,12 +13,34 @@ class CardBasicSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "issuer")
 
 class TransactionSerializer(serializers.ModelSerializer):
-    card_details = CardBasicSerializer(source='card', read_only=True)
+    card_actually_used_details = CardBasicSerializer(source='card_actually_used', read_only=True)
     recommended_card_details = CardBasicSerializer(source='recommended_card', read_only=True)
+    
+    # Calculated reward fields
+    actual_reward = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    optimal_reward = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    missed_reward = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    used_optimal_card = serializers.BooleanField(read_only=True)
     
     class Meta:
         model = Transaction
-        fields = ("id", "card", "card_details", "recommended_card", "recommended_card_details", "merchant", "amount", "category", "created_at", "updated_at", "notes")
+        fields = (
+            "id", 
+            "card_actually_used",
+            "card_actually_used_details",
+            "recommended_card", 
+            "recommended_card_details",
+            "merchant", 
+            "amount", 
+            "category",
+            "actual_reward",
+            "optimal_reward",
+            "missed_reward",
+            "used_optimal_card",
+            "created_at", 
+            "updated_at", 
+            "notes"
+        )
         read_only_fields = ("id", "user", "created_at", "updated_at")
     
     # Amount cannot be negative
@@ -139,7 +161,7 @@ class TransactionCSVRowSerializer(serializers.Serializer):
         
         transaction = Transaction.objects.create(
             user=user,
-            card=card,
+            card_actually_used=card,
             recommended_card=recommended_card,
             merchant=merchant,
             amount=amount,

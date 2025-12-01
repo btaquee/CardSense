@@ -32,7 +32,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
     # Records the API should return when a user makes a GET request
     # No filter. Will return all transactions for that user, sorted by created_at in descending order
     def get_queryset(self):
-        return Transaction.objects.filter(user=self.request.user).select_related('card').order_by("-created_at")
+        return Transaction.objects.filter(user=self.request.user).select_related('card_actually_used', 'recommended_card').order_by("-created_at")
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
@@ -208,3 +208,51 @@ class TransactionCSVImportView(APIView):
                 "results": results
             }
         }, status=status.HTTP_200_OK)
+
+
+class OptimizationStatsView(APIView):
+    """Get user's card optimization statistics"""
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        user = request.user
+        now = datetime.now()
+        month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        
+        transactions = Transaction.objects.filter(
+            user=user,
+            created_at__gte=month_start
+        )
+        
+        total = transactions.count()
+        
+        if total == 0:
+            return Response({
+                "success": True,
+                "data": {
+                    "total_transactions": 0,
+                    "optimal_card_usage_count": 0,
+                    "optimization_rate": 0,
+                    "actual_rewards": 0,
+                    "potential_rewards": 0,
+                    "missed_rewards": 0
+                }
+            })
+        
+        optimal_count = sum(1 for t in transactions if t.used_optimal_card)
+        
+        total_actual_rewards = sum(float(t.actual_reward) for t in transactions)
+        total_optimal_rewards = sum(float(t.optimal_reward) for t in transactions)
+        total_missed = total_optimal_rewards - total_actual_rewards
+        
+        return Response({
+            "success": True,
+            "data": {
+                "total_transactions": total,
+                "optimal_card_usage_count": optimal_count,
+                "optimization_rate": round((optimal_count / total * 100), 2) if total > 0 else 0,
+                "actual_rewards": round(total_actual_rewards, 2),
+                "potential_rewards": round(total_optimal_rewards, 2),
+                "missed_rewards": round(total_missed, 2)
+            }
+        })

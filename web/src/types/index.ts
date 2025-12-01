@@ -19,25 +19,28 @@ export interface UserProfile {
 // Transaction Types
 export interface Transaction {
   id: number;
-  user_id: number;
-  amount: number;
-  date: string;
-  category_id: number;
-  category?: TransactionCategory;
-  card?: number;
-  card_details?: {
+  user_id?: number;
+  amount: number | string;
+  date?: string;
+  category: string;  // Backend returns category as string, not category_id
+  card_actually_used?: number | null;
+  card_actually_used_details?: {
     id: number;
     name: string;
     issuer: string;
-  };
-  recommended_card?: number;
+  } | null;
+  recommended_card?: number | null;
   recommended_card_details?: {
     id: number;
     name: string;
     issuer: string;
-  };
+  } | null;
+  actual_reward: number | string;
+  optimal_reward: number | string;
+  missed_reward: number | string;
+  used_optimal_card: boolean;
   merchant: string;
-  notes?: string;
+  notes?: string | null;
   created_at: string;
   updated_at?: string;
 }
@@ -53,7 +56,7 @@ export interface TransactionCategory {
 export interface TransactionFormData {
   amount: number;
   category: string;
-  card?: number;
+  card_actually_used?: number;
   merchant: string;
   notes?: string;
 }
@@ -177,6 +180,15 @@ export interface CardRecommendationResponse {
       multiplier: number;
     }>;
   };
+}
+
+export interface OptimizationStats {
+  total_transactions: number;
+  optimal_card_usage_count: number;
+  optimization_rate: number;
+  actual_rewards: number;
+  potential_rewards: number;
+  missed_rewards: number;
 }
 
 // Alert Types

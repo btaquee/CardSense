@@ -1,5 +1,5 @@
 import apiService from './api';
-import type { Transaction, TransactionFormData, TransactionCategory, CardRecommendationResponse } from '../types';
+import type { Transaction, TransactionFormData, TransactionCategory, CardRecommendationResponse, OptimizationStats } from '../types';
 
 class TransactionService {
   async getTransactions(params?: {
@@ -50,6 +50,10 @@ class TransactionService {
 
   async getCardRecommendation(category: string, amount?: number) {
     return apiService.post<CardRecommendationResponse>('/transactions/recommend-card/', { category, amount });
+  }
+
+  async getOptimizationStats() {
+    return apiService.get<OptimizationStats>('/transactions/optimization-stats/');
   }
 }
 
