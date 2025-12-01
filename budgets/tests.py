@@ -112,14 +112,14 @@ class BudgetServicesTests(TestCase):
         #create transactions in current month
         Transaction.objects.create(
             user=self.user,
-            card=self.card,
+            card_actually_used=self.card,
             merchant='Store A',
             amount=Decimal('100.00'),
             category='GROCERIES'
         )
         Transaction.objects.create(
             user=self.user,
-            card=self.card,
+            card_actually_used=self.card,
             merchant='Store B',
             amount=Decimal('50.00'),
             category='DINING'
@@ -132,7 +132,7 @@ class BudgetServicesTests(TestCase):
         #add transaction that crosses 0.5 threshold (500/1000 = 0.5)
         Transaction.objects.create(
             user=self.user,
-            card=self.card,
+            card_actually_used=self.card,
             merchant='Store A',
             amount=Decimal('500.00'),
             category='GROCERIES'
@@ -149,7 +149,7 @@ class BudgetServicesTests(TestCase):
         #add more to cross 0.7 threshold
         Transaction.objects.create(
             user=self.user,
-            card=self.card,
+            card_actually_used=self.card,
             merchant='Store B',
             amount=Decimal('200.00'),
             category='DINING'
@@ -222,7 +222,7 @@ class BudgetAPITests(TestCase):
         #add a transaction
         Transaction.objects.create(
             user=self.user,
-            card=self.card,
+            card_actually_used=self.card,
             merchant='Store A',
             amount=Decimal('300.00'),
             category='GROCERIES'
@@ -324,7 +324,7 @@ class BudgetSignalTests(TestCase):
         # Create transaction that crosses 0.5 threshold
         Transaction.objects.create(
             user=self.user,
-            card=self.card,
+            card_actually_used=self.card,
             merchant='Store A',
             amount=Decimal('500.00'),
             category='GROCERIES'
@@ -339,7 +339,7 @@ class BudgetSignalTests(TestCase):
         """Test that updating a transaction recomputes MTD."""
         tx = Transaction.objects.create(
             user=self.user,
-            card=self.card,
+            card_actually_used=self.card,
             merchant='Store A',
             amount=Decimal('300.00'),
             category='GROCERIES'
@@ -355,7 +355,7 @@ class BudgetSignalTests(TestCase):
         """Test that deleting a transaction recomputes MTD."""
         tx = Transaction.objects.create(
             user=self.user,
-            card=self.card,
+            card_actually_used=self.card,
             merchant='Store A',
             amount=Decimal('500.00'),
             category='GROCERIES'
