@@ -243,11 +243,11 @@ const TransactionList: React.FC = () => {
                             <CheckCircle size={14} className="mr-1" />
                             Optimized
                           </div>
-                        ) : (transaction as any).missed_reward > 0 ? (
+                        ) : (transaction as any).missed_reward != null && Number((transaction as any).missed_reward) > 0 ? (
                           <div className="text-sm">
                             <div className="inline-flex items-center px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium mb-1">
                               <AlertTriangle size={14} className="mr-1" />
-                              Missed ${(transaction as any).missed_reward.toFixed(2)}
+                              Missed ${Number((transaction as any).missed_reward).toFixed(2)}
                             </div>
                             {transaction.recommended_card_details && (
                               <div className="text-xs text-gray-500">
