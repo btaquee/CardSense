@@ -178,6 +178,9 @@ const TransactionList: React.FC = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Category
                     </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Card
+                    </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Amount
                     </th>
@@ -206,6 +209,26 @@ const TransactionList: React.FC = () => {
                           {formatCategoryName((transaction as any).category || 'OTHER')}
                         </span>
                       </td>
+                      <td className="px-6 py-4">
+                        {transaction.card_details ? (
+                          <div className="text-sm">
+                            <div className="font-medium text-gray-900">{transaction.card_details.name}</div>
+                            <div className="text-xs text-gray-500">{transaction.card_details.issuer}</div>
+                          </div>
+                        ) : transaction.recommended_card_details ? (
+                          <div className="text-sm">
+                            <div className="font-medium text-green-700 flex items-center">
+                              <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M13 10V3L4 14h7v7l9-11h-7z" clipRule="evenodd" />
+                              </svg>
+                              {transaction.recommended_card_details.name}
+                            </div>
+                            <div className="text-xs text-green-600">Recommended</div>
+                          </div>
+                        ) : (
+                          <div className="text-xs text-gray-400">No card</div>
+                        )}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <div className="text-sm font-semibold text-gray-900">
                           {formatCurrency(transaction.amount)}
@@ -225,7 +248,7 @@ const TransactionList: React.FC = () => {
                 </tbody>
                 <tfoot className="bg-gray-50 border-t border-gray-200">
                   <tr>
-                    <td colSpan={3} className="px-6 py-4 text-right font-semibold text-gray-900">
+                    <td colSpan={4} className="px-6 py-4 text-right font-semibold text-gray-900">
                       Total:
                     </td>
                     <td className="px-6 py-4 text-right font-bold text-gray-900">
