@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { transactionService } from '../../services/transaction.service';
 import type { Transaction } from '../../types';
 import { formatCurrency, formatDate } from '../../utils/formatters';
-import { Trash2, Calendar, DollarSign, Upload, Plus } from 'lucide-react';
+import { Trash2, Calendar, DollarSign, Upload, Plus, CheckCircle, AlertTriangle } from 'lucide-react';
 
 const TransactionList: React.FC = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -185,6 +185,9 @@ const TransactionList: React.FC = () => {
                       Amount
                     </th>
                     <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Optimization
+                    </th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
@@ -210,10 +213,10 @@ const TransactionList: React.FC = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        {transaction.card_details ? (
+                        {transaction.card_actually_used_details ? (
                           <div className="text-sm">
-                            <div className="font-medium text-gray-900">{transaction.card_details.name}</div>
-                            <div className="text-xs text-gray-500">{transaction.card_details.issuer}</div>
+                            <div className="font-medium text-gray-900">{transaction.card_actually_used_details.name}</div>
+                            <div className="text-xs text-gray-500">{transaction.card_actually_used_details.issuer}</div>
                           </div>
                         ) : transaction.recommended_card_details ? (
                           <div className="text-sm">
@@ -231,8 +234,30 @@ const TransactionList: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <div className="text-sm font-semibold text-gray-900">
-                          {formatCurrency(transaction.amount)}
+                          {formatCurrency(typeof transaction.amount === 'string' ? parseFloat(transaction.amount) : transaction.amount)}
                         </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        {(transaction as any).used_optimal_card ? (
+                          <div className="inline-flex items-center px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                            <CheckCircle size={14} className="mr-1" />
+                            Optimized
+                          </div>
+                        ) : (transaction as any).missed_reward > 0 ? (
+                          <div className="text-sm">
+                            <div className="inline-flex items-center px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium mb-1">
+                              <AlertTriangle size={14} className="mr-1" />
+                              Missed ${(transaction as any).missed_reward.toFixed(2)}
+                            </div>
+                            {transaction.recommended_card_details && (
+                              <div className="text-xs text-gray-500">
+                                Should use {transaction.recommended_card_details.name}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="text-xs text-gray-400">—</div>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         <button
@@ -253,8 +278,13 @@ const TransactionList: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 text-right font-bold text-gray-900">
                       {formatCurrency(
-                        transactions.reduce((sum, t) => sum + parseFloat(String(t.amount)), 0)
+                        transactions.reduce((sum, t) => sum + (typeof t.amount === 'string' ? parseFloat(t.amount) : t.amount), 0)
                       )}
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <div className="text-xs text-gray-600">
+                        {transactions.filter((t: any) => t.used_optimal_card).length} optimized
+                      </div>
                     </td>
                     <td></td>
                   </tr>

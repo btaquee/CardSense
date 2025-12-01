@@ -113,7 +113,7 @@ const AddTransaction: React.FC = () => {
         merchant: formData.merchant,
         amount: parseFloat(formData.amount),
         category: formData.category,
-        card: formData.card ? parseInt(formData.card) : undefined,
+        card_actually_used: formData.card ? parseInt(formData.card) : undefined,
         notes: formData.notes || undefined,
       });
 

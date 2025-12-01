@@ -12,13 +12,13 @@ def calculate_transaction_reward(transaction):
     Uses the recommended card if no actual card is specified.
     
     Args:
-        transaction: Transaction object with card, amount, and category
+        transaction: Transaction object with card_actually_used, amount, and category
     
     Returns:
         Decimal: Reward amount earned (in dollars/cashback)
     """
     # Use recommended_card if card is not specified (recommendation scenario)
-    card_to_use = transaction.card or transaction.recommended_card
+    card_to_use = transaction.card_actually_used or transaction.recommended_card
     
     if not card_to_use or not transaction.category:
         return Decimal('0.00')
@@ -101,7 +101,7 @@ def calculate_rewards_by_card(user, start_date=None, end_date=None):
     
     for transaction in transactions:
         # Use recommended_card if card is not specified
-        card_to_use = transaction.card or transaction.recommended_card
+        card_to_use = transaction.card_actually_used or transaction.recommended_card
         
         if not card_to_use:
             continue  # Skip transactions without any card
