@@ -9,6 +9,7 @@ from cards.models import RewardRule
 def calculate_transaction_reward(transaction):
     """
     Calculate the reward earned for a single transaction.
+    Uses the recommended card if no actual card is specified.
     
     Args:
         transaction: Transaction object with card, amount, and category
@@ -16,11 +17,14 @@ def calculate_transaction_reward(transaction):
     Returns:
         Decimal: Reward amount earned (in dollars/cashback)
     """
-    if not transaction.card or not transaction.category:
+    # Use recommended_card if card is not specified (recommendation scenario)
+    card_to_use = transaction.card or transaction.recommended_card
+    
+    if not card_to_use or not transaction.category:
         return Decimal('0.00')
     
     # Get matching reward rules for this card and category
-    reward_rules = RewardRule.objects.filter(card=transaction.card)
+    reward_rules = RewardRule.objects.filter(card=card_to_use)
     
     best_multiplier = Decimal('0.00')
     
@@ -74,6 +78,7 @@ def calculate_total_rewards(user, start_date=None, end_date=None):
 def calculate_rewards_by_card(user, start_date=None, end_date=None):
     """
     Calculate rewards earned per card for a user.
+    Uses recommended card if actual card is not specified.
     
     Args:
         user: User object
@@ -95,7 +100,13 @@ def calculate_rewards_by_card(user, start_date=None, end_date=None):
     rewards_by_card = {}
     
     for transaction in transactions:
-        card_id = transaction.card.id
+        # Use recommended_card if card is not specified
+        card_to_use = transaction.card or transaction.recommended_card
+        
+        if not card_to_use:
+            continue  # Skip transactions without any card
+            
+        card_id = card_to_use.id
         reward = calculate_transaction_reward(transaction)
         
         if card_id in rewards_by_card:

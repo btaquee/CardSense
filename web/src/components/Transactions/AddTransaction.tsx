@@ -20,6 +20,20 @@ const CATEGORY_CHOICES = [
   { value: 'OTHER', label: 'Other' },
 ];
 
+interface Recommendation {
+  best_card: {
+    card_id: number;
+    card_name: string;
+  } | null;
+  multiplier: number;
+  rationale: string;
+  top3: Array<{
+    card_id: number;
+    card_name: string;
+    multiplier: number;
+  }>;
+}
+
 const AddTransaction: React.FC = () => {
   const navigate = useNavigate();
   const [userCards, setUserCards] = useState<UserCard[]>([]);
@@ -33,6 +47,8 @@ const AddTransaction: React.FC = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [loadingCards, setLoadingCards] = useState(true);
+  const [recommendation, setRecommendation] = useState<Recommendation | null>(null);
+  const [loadingRecommendation, setLoadingRecommendation] = useState(false);
 
   useEffect(() => {
     loadUserCards();
@@ -44,6 +60,29 @@ const AddTransaction: React.FC = () => {
       setUserCards(response.data.filter((card) => card.is_active));
     }
     setLoadingCards(false);
+  };
+
+  const fetchRecommendation = async (category: string, amount?: string) => {
+    if (!category) {
+      setRecommendation(null);
+      return;
+    }
+    
+    setLoadingRecommendation(true);
+    try {
+      const response = await transactionService.getCardRecommendation(
+        category,
+        amount ? parseFloat(amount) : undefined
+      );
+      
+      if (response.success && response.data) {
+        setRecommendation(response.data.recommendation);
+      }
+    } catch (err) {
+      console.error('Failed to fetch recommendation:', err);
+    } finally {
+      setLoadingRecommendation(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -65,11 +104,8 @@ const AddTransaction: React.FC = () => {
       return;
     }
 
-    if (!formData.card) {
-      setError('Card is required');
-      return;
-    }
-
+    // Card is now optional - system will recommend one
+    
     setLoading(true);
 
     try {
@@ -77,7 +113,7 @@ const AddTransaction: React.FC = () => {
         merchant: formData.merchant,
         amount: parseFloat(formData.amount),
         category: formData.category,
-        card: parseInt(formData.card),
+        card: formData.card ? parseInt(formData.card) : undefined,
         notes: formData.notes || undefined,
       });
 
@@ -96,10 +132,19 @@ const AddTransaction: React.FC = () => {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
+    const { name, value } = e.target;
+    
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
+
+    // Fetch recommendation when category or amount changes
+    if (name === 'category') {
+      fetchRecommendation(value, formData.amount);
+    } else if (name === 'amount' && formData.category) {
+      fetchRecommendation(formData.category, value);
+    }
   };
 
   if (loadingCards) {
@@ -131,10 +176,10 @@ const AddTransaction: React.FC = () => {
           )}
 
           {userCards.length === 0 && (
-            <div className="mb-4 p-4 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded">
-              <p className="font-semibold">No active cards found</p>
+            <div className="mb-4 p-4 bg-blue-100 border border-blue-400 text-blue-800 rounded">
+              <p className="font-semibold">💡 Tip: Add cards for better recommendations</p>
               <p className="text-sm mt-1">
-                Please add a card to your wallet before creating a transaction.{' '}
+                You can still add transactions, but adding cards to your wallet will give you personalized recommendations.{' '}
                 <Link to="/cards" className="underline font-medium">
                   Go to Cards
                 </Link>
@@ -198,20 +243,61 @@ const AddTransaction: React.FC = () => {
               </select>
             </div>
 
+            {/* Card Recommendation Display */}
+            {formData.category && (
+              <div className="bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-200 rounded-lg p-4">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0">
+                    <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  <div className="ml-3 flex-1">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-1">
+                      💳 Recommended Card
+                    </h3>
+                    {loadingRecommendation ? (
+                      <p className="text-sm text-gray-600">Loading recommendation...</p>
+                    ) : recommendation && recommendation.best_card ? (
+                      <div>
+                        <p className="text-base font-bold text-green-700 mb-1">
+                          {recommendation.best_card.card_name}
+                        </p>
+                        <p className="text-sm text-gray-700 mb-2">
+                          {recommendation.rationale}
+                        </p>
+                        {formData.amount && (
+                          <p className="text-sm font-semibold text-green-600">
+                            Potential Reward: ${((parseFloat(formData.amount) * recommendation.multiplier) / 100).toFixed(2)}
+                          </p>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-600">
+                        No card recommendations available for this category.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div>
               <label htmlFor="card" className="block text-sm font-medium text-gray-700 mb-1">
-                Card *
+                Card Used (Optional)
               </label>
+              <p className="text-xs text-gray-500 mb-2">
+                Leave blank to use the recommended card above
+              </p>
               <select
                 id="card"
                 name="card"
                 value={formData.card}
                 onChange={handleChange}
-                required
                 disabled={userCards.length === 0}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
               >
-                <option value="">Select a card</option>
+                <option value="">Use recommended card</option>
                 {userCards.map((userCard) => (
                   <option key={userCard.id} value={userCard.card_id}>
                     {userCard.card_name || `Card ${userCard.card_id}`}
@@ -238,7 +324,7 @@ const AddTransaction: React.FC = () => {
             <div className="flex gap-4 pt-4">
               <button
                 type="submit"
-                disabled={loading || userCards.length === 0}
+                disabled={loading}
                 className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition font-semibold"
               >
                 {loading ? 'Adding Transaction...' : 'Add Transaction'}

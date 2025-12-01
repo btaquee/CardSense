@@ -93,9 +93,9 @@ const CSVUpload: React.FC = () => {
     const sampleData = [
       'merchant,amount,category,card,date,notes',
       'Whole Foods,125.50,GROCERIES,1,2024-11-28,Weekly grocery shopping',
-      'Shell Gas Station,45.00,GAS,1,2024-11-27,',
+      'Shell Gas Station,45.00,GAS,,2024-11-27,Card will be recommended',
       'Amazon,89.99,ONLINE_SHOPPING,2,2024-11-26,Electronics',
-      'Chipotle,12.50,DINING,1,2024-11-25,Lunch with friend'
+      'Chipotle,12.50,DINING,,2024-11-25,Using recommended card for dining'
     ].join('\n');
 
     const blob = new Blob([sampleData], { type: 'text/csv' });
@@ -126,12 +126,12 @@ const CSVUpload: React.FC = () => {
           <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <h3 className="font-semibold text-blue-900 mb-2">CSV Format Requirements:</h3>
             <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
-              <li>Required columns: <code className="bg-blue-100 px-1 rounded">merchant</code>, <code className="bg-blue-100 px-1 rounded">amount</code>, <code className="bg-blue-100 px-1 rounded">category</code>, <code className="bg-blue-100 px-1 rounded">card</code></li>
-              <li>Optional columns: <code className="bg-blue-100 px-1 rounded">date</code>, <code className="bg-blue-100 px-1 rounded">notes</code></li>
+              <li>Required columns: <code className="bg-blue-100 px-1 rounded">merchant</code>, <code className="bg-blue-100 px-1 rounded">amount</code>, <code className="bg-blue-100 px-1 rounded">category</code></li>
+              <li>Optional columns: <code className="bg-blue-100 px-1 rounded">card</code>, <code className="bg-blue-100 px-1 rounded">date</code>, <code className="bg-blue-100 px-1 rounded">notes</code></li>
               <li>Date format: YYYY-MM-DD (e.g., 2024-11-28) - uses current date if not provided</li>
               <li>Amount: Positive numbers with up to 2 decimal places</li>
               <li>Category: Must match one of the available categories (GROCERIES, GAS, DINING, etc.)</li>
-              <li>Card: Can be card ID number or card name (must be in your wallet)</li>
+              <li>Card: Can be card ID number or card name (must be in your wallet) - <strong>leave blank to use recommended card</strong></li>
               <li>File must be UTF-8 encoded</li>
             </ul>
             <button
