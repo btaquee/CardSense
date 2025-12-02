@@ -245,7 +245,7 @@ const CardManagement: React.FC = () => {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {userCards.map((userCard) => {
                 const cardDetails = getUserCardDetails(userCard.card);
                 if (!cardDetails) return null;
@@ -361,7 +361,7 @@ const CardManagement: React.FC = () => {
           <h2 className="text-2xl font-semibold text-gray-900 mb-4">Available Cards</h2>
           <p className="text-gray-600 mb-6">Browse our database of credit cards to find the best fit for you</p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {allCards.map((card) => {
               const inWallet = isCardInWallet(card.id);
 
