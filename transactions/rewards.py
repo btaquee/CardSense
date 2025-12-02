@@ -10,6 +10,7 @@ def calculate_transaction_reward(transaction):
     """
     Calculate the reward earned for a single transaction.
     Uses the recommended card if no actual card is specified.
+    Falls back to OTHER (base rate) if no specific category bonus exists.
     
     Args:
         transaction: Transaction object with card_actually_used, amount, and category
@@ -23,10 +24,11 @@ def calculate_transaction_reward(transaction):
     if not card_to_use or not transaction.category:
         return Decimal('0.00')
     
-    # Get matching reward rules for this card and category
+    # Get all reward rules for this card
     reward_rules = RewardRule.objects.filter(card=card_to_use)
     
     best_multiplier = Decimal('0.00')
+    best_other_multiplier = Decimal('0.00')  # Fallback for base rate
     
     for rule in reward_rules:
         # Check if transaction category matches rule category
@@ -35,9 +37,19 @@ def calculate_transaction_reward(transaction):
         if isinstance(categories, str):
             categories = [cat.strip() for cat in categories.split(',')]
         
+        # Track the best OTHER (base rate) multiplier as fallback
+        if 'OTHER' in categories:
+            if rule.multiplier and rule.multiplier > best_other_multiplier:
+                best_other_multiplier = rule.multiplier
+        
+        # Check for exact category match
         if transaction.category in categories:
             if rule.multiplier and rule.multiplier > best_multiplier:
                 best_multiplier = rule.multiplier
+    
+    # If no specific category bonus found, fall back to OTHER (base rate)
+    if best_multiplier == Decimal('0.00') and best_other_multiplier > Decimal('0.00'):
+        best_multiplier = best_other_multiplier
     
     # Calculate reward: amount × multiplier ÷ 100 (if multiplier is percentage)
     # Most cards use percentage (e.g., 3% back = multiplier of 3.00)

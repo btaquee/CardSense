@@ -41,9 +41,10 @@ class Transaction(models.Model):
         if not card or not self.category:
             return Decimal('0.00')
         
-        # Get matching reward rules for this card and category
+        # Get all reward rules for this card
         reward_rules = RewardRule.objects.filter(card=card)
         best_multiplier = Decimal('0.00')
+        best_other_multiplier = Decimal('0.00')  # Fallback for base rate
         
         for rule in reward_rules:
             # Check if transaction category matches rule category
@@ -51,9 +52,19 @@ class Transaction(models.Model):
             if isinstance(categories, str):
                 categories = [cat.strip() for cat in categories.split(',')]
             
+            # Track the best OTHER (base rate) multiplier as fallback
+            if 'OTHER' in categories:
+                if rule.multiplier and rule.multiplier > best_other_multiplier:
+                    best_other_multiplier = rule.multiplier
+            
+            # Check for exact category match
             if self.category in categories:
                 if rule.multiplier and rule.multiplier > best_multiplier:
                     best_multiplier = rule.multiplier
+        
+        # If no specific category bonus found, fall back to OTHER (base rate)
+        if best_multiplier == Decimal('0.00') and best_other_multiplier > Decimal('0.00'):
+            best_multiplier = best_other_multiplier
         
         # Calculate reward: amount × multiplier ÷ 100
         reward = (self.amount * best_multiplier) / Decimal('100')

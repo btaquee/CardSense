@@ -49,25 +49,13 @@ const RewardsBreakdown: React.FC = () => {
     return cardRewards.reduce((sum, card) => sum + card.rewards_earned, 0);
   };
 
-  const getRewardMultiplier = (category: string): number => {
-    // This is a simplified version - in production, you'd fetch this from reward rules
-    const categoryMultipliers: Record<string, number> = {
-      'GROCERIES': 6.0,
-      'GAS': 3.0,
-      'DINING': 3.0,
-      'ONLINE_SHOPPING': 1.0,
-      'TRANSIT': 1.0,
-      'ENTERTAINMENT': 1.0,
-      'PHARMACY': 1.0,
-      'OTHER': 1.0
-    };
-    return categoryMultipliers[category] || 1.0;
-  };
-
-  const calculateTransactionReward = (transaction: any): number => {
-    const category = transaction.category || 'OTHER';
-    const multiplier = getRewardMultiplier(category);
-    return (transaction.amount * multiplier) / 100;
+  const getTransactionReward = (transaction: any): number => {
+    // Use the actual_reward from the backend API (already calculated correctly with fallback)
+    if (transaction.actual_reward !== undefined && transaction.actual_reward !== null) {
+      return parseFloat(transaction.actual_reward);
+    }
+    // Fallback to 0 if no reward calculated
+    return 0;
   };
 
   const formatCategoryName = (category: string) => {
@@ -224,7 +212,7 @@ const RewardsBreakdown: React.FC = () => {
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {transactions.slice(0, 10).map((transaction) => {
-                      const reward = calculateTransactionReward(transaction);
+                      const reward = getTransactionReward(transaction);
                       return (
                         <tr key={transaction.id} className="hover:bg-gray-50 transition">
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -234,7 +222,7 @@ const RewardsBreakdown: React.FC = () => {
                             {transaction.merchant}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                            {transaction.card_details?.name || 'N/A'}
+                            {transaction.card_actually_used_details?.name || transaction.recommended_card_details?.name || 'N/A'}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getCategoryColor(transaction.category || 'OTHER')}`}>
