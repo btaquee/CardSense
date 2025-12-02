@@ -91,11 +91,11 @@ const CSVUpload: React.FC = () => {
 
   const downloadSampleCSV = () => {
     const sampleData = [
-      'merchant,amount,category,card,date,notes',
-      'Whole Foods,125.50,GROCERIES,1,2024-11-28,Weekly grocery shopping',
-      'Shell Gas Station,45.00,GAS,,2024-11-27,Card will be recommended',
-      'Amazon,89.99,ONLINE_SHOPPING,2,2024-11-26,Electronics',
-      'Chipotle,12.50,DINING,,2024-11-25,Using recommended card for dining'
+      'merchant,amount,category,date,card,notes',
+      'Whole Foods,125.50,GROCERIES,2024-11-28,Blue Cash Preferred,Weekly grocery shopping',
+      'Shell Gas Station,45.00,GAS,2024-11-27,,Card will be recommended',
+      'Amazon,89.99,ONLINE_SHOPPING,2024-11-26,Premium Rewards,Electronics',
+      'Chipotle,12.50,DINING,2024-11-25,,Using recommended card for dining'
     ].join('\n');
 
     const blob = new Blob([sampleData], { type: 'text/csv' });
