@@ -101,77 +101,100 @@ const Dashboard: React.FC = () => {
           </Link>
         </div>
 
-        {/* Budget Status */}
+        {/* Budget Status & Recent Transactions */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          {/* Budget Status */}
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Budget Status</h2>
+              <h2 className="text-xl font-semibold text-gray-900">Budget Status</h2>
               <Link to="/budgets" className="text-blue-600 hover:text-blue-800 text-sm">
                 View All
               </Link>
             </div>
             <div className="space-y-4">
-              {data?.budget_status?.slice(0, 5).map((budget) => (
-                <div key={budget.id}>
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-sm font-medium">
-                      {budget.category?.name || 'Unknown'}
-                    </span>
-                    <span className="text-sm text-gray-600">
-                      {formatCurrency(budget.spent || 0)} / {formatCurrency(budget.amount)}
-                    </span>
+              {data?.budget_status && data.budget_status.length > 0 ? (
+                data.budget_status.slice(0, 5).map((budget) => (
+                  <div key={budget.id}>
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-sm font-medium text-gray-900">
+                        {budget.category?.name || 'Monthly Budget'}
+                      </span>
+                      <span className="text-sm text-gray-600">
+                        {formatCurrency(budget.spent || 0)} / {formatCurrency(budget.amount || 0)}
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className={`h-2 rounded-full ${
+                          (budget.percentage_used || 0) > 100
+                            ? 'bg-red-600'
+                            : (budget.percentage_used || 0) > 80
+                            ? 'bg-orange-500'
+                            : 'bg-green-500'
+                        }`}
+                        style={{ width: `${Math.min((budget.percentage_used || 0), 100)}%` }}
+                      ></div>
+                    </div>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className={`h-2 rounded-full ${
-                        (budget.percentage_used || 0) > 100
-                          ? 'bg-red-600'
-                          : (budget.percentage_used || 0) > 80
-                          ? 'bg-orange-500'
-                          : 'bg-green-500'
-                      }`}
-                      style={{ width: `${Math.min((budget.percentage_used || 0), 100)}%` }}
-                    ></div>
-                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <p>No budget set for this month</p>
+                  <Link to="/budgets/create" className="text-blue-600 hover:text-blue-800 text-sm mt-2 inline-block">
+                    Create a Budget →
+                  </Link>
                 </div>
-              ))}
+              )}
             </div>
           </div>
 
           {/* Recent Transactions */}
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Recent Transactions</h2>
+              <h2 className="text-xl font-semibold text-gray-900">Recent Transactions</h2>
               <Link to="/transactions" className="text-blue-600 hover:text-blue-800 text-sm">
                 View All
               </Link>
             </div>
             <div className="space-y-3">
-              {data?.recent_transactions?.slice(0, 5).map((transaction) => (
-                <div key={transaction.id} className="flex justify-between items-center">
-                  <div>
-                    <div className="font-medium">{transaction.merchant}</div>
-                    <div className="text-xs text-gray-500">
-                      {formatDate(transaction.created_at)} • {transaction.category?.replace(/_/g, ' ')}
+              {data?.recent_transactions && data.recent_transactions.length > 0 ? (
+                data.recent_transactions.slice(0, 5).map((transaction) => (
+                  <div key={transaction.id} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0">
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-gray-900 truncate">
+                        {transaction.merchant || 'Unknown Merchant'}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {formatDate(transaction.created_at)} • {(transaction.category || 'OTHER').replace(/_/g, ' ')}
+                      </div>
+                    </div>
+                    <div className="font-semibold text-gray-900 ml-4">
+                      {formatCurrency(typeof transaction.amount === 'string' ? parseFloat(transaction.amount) : (transaction.amount || 0))}
                     </div>
                   </div>
-                  <div className="font-semibold">{formatCurrency(typeof transaction.amount === 'string' ? parseFloat(transaction.amount) : transaction.amount)}</div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <p>No transactions yet</p>
+                  <Link to="/transactions/add" className="text-blue-600 hover:text-blue-800 text-sm mt-2 inline-block">
+                    Add a Transaction →
+                  </Link>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>
 
         {/* Quick Actions */}
         <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Link
               to="/transactions/add"
               className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition text-center"
             >
               <div className="text-3xl mb-2">💳</div>
-              <div className="font-medium">Add Transaction</div>
+              <div className="font-medium text-gray-900">Add Transaction</div>
             </Link>
 
             <Link
@@ -179,7 +202,7 @@ const Dashboard: React.FC = () => {
               className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-green-500 hover:bg-green-50 transition text-center"
             >
               <div className="text-3xl mb-2">📊</div>
-              <div className="font-medium">Import CSV</div>
+              <div className="font-medium text-gray-900">Import CSV</div>
             </Link>
 
             <Link
@@ -187,7 +210,7 @@ const Dashboard: React.FC = () => {
               className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition text-center"
             >
               <div className="text-3xl mb-2">💰</div>
-              <div className="font-medium">Create Budget</div>
+              <div className="font-medium text-gray-900">Create Budget</div>
             </Link>
 
             <Link
@@ -195,7 +218,7 @@ const Dashboard: React.FC = () => {
               className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition text-center"
             >
               <div className="text-3xl mb-2">🎴</div>
-              <div className="font-medium">Manage Cards</div>
+              <div className="font-medium text-gray-900">Manage Cards</div>
             </Link>
           </div>
         </div>

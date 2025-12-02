@@ -72,9 +72,10 @@ class Transaction(models.Model):
     
     @property
     def actual_reward(self):
-        """Reward from card actually used (or recommended if not specified)"""
-        card_to_use = self.card_actually_used or self.recommended_card
-        return self._calculate_reward_for_card(card_to_use)
+        """Reward from card actually used (0 if no card specified)"""
+        if not self.card_actually_used:
+            return Decimal('0.00')  # No card used = no rewards earned
+        return self._calculate_reward_for_card(self.card_actually_used)
     
     @property
     def optimal_reward(self):
@@ -88,9 +89,9 @@ class Transaction(models.Model):
     
     @property
     def used_optimal_card(self):
-        """True if user used the recommended card or didn't specify a card"""
+        """True only if user explicitly used the recommended card"""
         if not self.card_actually_used:
-            return True  # Assumed they followed recommendation
+            return False  # No card specified - can't verify optimization
         if not self.recommended_card:
-            return True  # No recommendation available
+            return True  # No recommendation available, so any card is fine
         return self.card_actually_used.id == self.recommended_card.id

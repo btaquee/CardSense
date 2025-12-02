@@ -243,6 +243,18 @@ const TransactionList: React.FC = () => {
                             <CheckCircle size={14} className="mr-1" />
                             Optimized
                           </div>
+                        ) : !transaction.card_actually_used ? (
+                          <div className="text-sm">
+                            <div className="inline-flex items-center px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium mb-1">
+                              <AlertTriangle size={14} className="mr-1" />
+                              No Card Used
+                            </div>
+                            {transaction.recommended_card_details && Number((transaction as any).missed_reward) > 0 && (
+                              <div className="text-xs text-gray-500">
+                                Could earn ${Number((transaction as any).missed_reward).toFixed(2)} with {transaction.recommended_card_details.name}
+                              </div>
+                            )}
+                          </div>
                         ) : (transaction as any).missed_reward != null && Number((transaction as any).missed_reward) > 0 ? (
                           <div className="text-sm">
                             <div className="inline-flex items-center px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium mb-1">
@@ -282,8 +294,10 @@ const TransactionList: React.FC = () => {
                       )}
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <div className="text-xs text-gray-600">
-                        {transactions.filter((t: any) => t.used_optimal_card).length} optimized
+                      <div className="text-xs text-gray-600 space-y-1">
+                        <div className="text-green-600">{transactions.filter((t: any) => t.used_optimal_card).length} optimized</div>
+                        <div className="text-yellow-600">{transactions.filter((t: any) => !t.card_actually_used).length} no card</div>
+                        <div className="text-red-600">{transactions.filter((t: any) => t.card_actually_used && !t.used_optimal_card).length} suboptimal</div>
                       </div>
                     </td>
                     <td></td>
