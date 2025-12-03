@@ -123,6 +123,7 @@ Primarily for developers' purposes, but it contains many helpful resources that 
 4. [Diagram](./resource/diagrams/)
 
 Some frontend resource:
+
 5. [Authentication Setup Guide](./resource/frontend/Authentication%20Setup%20Guide.md)
 6. [Backend Integration Guide](./resource/frontend/Backend%20Integration%20Guide.md)
 7. [CardSense Frontend](./resource/frontend/CardSense%20Frontend.md)
