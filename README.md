@@ -3,6 +3,7 @@
 
 **Manage user's budgets and maximize credit card rewards by tracking spending**
 
+Our [presentation slides](./resource/CardSense-Slides.pdf) will help you understand this project in under 5 minutes!
 
 **Authors**
 
@@ -120,3 +121,9 @@ Primarily for developers' purposes, but it contains many helpful resources that 
 2. [Project Summary](./resource/Project%20Summary.md)
 3. [Set Up Guide](./resource/Set%20Up%20Guide.md)
 4. [Diagram](./resource/diagrams/)
+
+Some frontend resource:
+5. [Authentication Setup Guide](./resource/frontend/Authentication%20Setup%20Guide.md)
+6. [Backend Integration Guide](./resource/frontend/Backend%20Integration%20Guide.md)
+7. [CardSense Frontend](./resource/frontend/CardSense%20Frontend.md)
+8. [Frontend Changes Summary](./resource/frontend/Frontend%20Changes%20Summary.md)
