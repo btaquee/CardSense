@@ -65,7 +65,7 @@ cd web
 
 # Install React dependencies
 npm install
-```
+npm install --save-dev jest @types/jest ts-jest
 
 ### Running the Program
 
