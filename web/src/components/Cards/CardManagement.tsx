@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { cardService } from '../../services/card.service';
 import type { CreditCard, UserCard } from '../../types';
@@ -10,20 +10,22 @@ const CardManagement: React.FC = () => {
   const [userCards, setUserCards] = useState<UserCard[]>([]);
   const [cardRewards, setCardRewards] = useState<Record<number, number>>({});
   const [loading, setLoading] = useState(true);
-  const [showAddModal, setShowAddModal] = useState(false);
   const [selectedCard, setSelectedCard] = useState<CreditCard | null>(null);
   const [notes, setNotes] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const availableCardsRef = useRef<HTMLDivElement | null>(null);
+  const addCardPanelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     loadData();
   }, []);
 
   useEffect(() => {
-    console.log('showAddModal state changed to:', showAddModal);
-    console.log('selectedCard is:', selectedCard);
-  }, [showAddModal, selectedCard]);
+    if (selectedCard && addCardPanelRef.current) {
+      addCardPanelRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [selectedCard]);
 
   const loadData = async () => {
     try {
@@ -68,21 +70,16 @@ const CardManagement: React.FC = () => {
   };
 
   const handleAddCard = async () => {
-    console.log('handleAddCard called, selectedCard:', selectedCard);
     if (!selectedCard) {
-      console.log('No card selected, returning');
       return;
     }
 
     try {
       setError('');
-      console.log('Calling addUserCard API with card ID:', selectedCard.id, 'notes:', notes);
       const response = await cardService.addUserCard(selectedCard.id, notes);
-      console.log('addUserCard API response:', response);
       
       if (response.success) {
         setSuccess('Card added successfully!');
-        setShowAddModal(false);
         setSelectedCard(null);
         setNotes('');
         loadData(); // Reload to get updated list
@@ -174,6 +171,8 @@ const CardManagement: React.FC = () => {
     ).join(' ');
   };
 
+  const availableCards = allCards.filter((card) => !isCardInWallet(card.id));
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-50">
@@ -184,7 +183,7 @@ const CardManagement: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 pt-8 pb-16">
         {/* Header */}
         <div className="mb-8 flex justify-between items-start">
           <div>
@@ -223,11 +222,15 @@ const CardManagement: React.FC = () => {
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-semibold text-gray-900">My Cards</h2>
             <button
-              onClick={() => setShowAddModal(true)}
+              onClick={() => {
+                if (availableCardsRef.current) {
+                  availableCardsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+              }}
               className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
             >
               <Plus size={20} className="mr-2" />
-              Add Card
+              Browse & Add Cards
             </button>
           </div>
 
@@ -237,7 +240,11 @@ const CardManagement: React.FC = () => {
               <h3 className="text-lg font-semibold text-gray-900 mb-2">No cards yet</h3>
               <p className="text-gray-600 mb-4">Add your credit cards to start optimizing your rewards!</p>
               <button
-                onClick={() => setShowAddModal(true)}
+                onClick={() => {
+                  if (availableCardsRef.current) {
+                    availableCardsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                }}
                 className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
               >
                 <Plus size={20} className="mr-2" />
@@ -357,31 +364,30 @@ const CardManagement: React.FC = () => {
         </div>
 
         {/* Available Cards Section */}
-        <div>
+        <div ref={availableCardsRef} className="mb-12">
           <h2 className="text-2xl font-semibold text-gray-900 mb-4">Available Cards</h2>
-          <p className="text-gray-600 mb-6">Browse our database of credit cards to find the best fit for you</p>
+          <p className="text-gray-600 mb-6">
+            Browse our database of credit cards to find the best fit for you
+          </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {allCards.map((card) => {
-              const inWallet = isCardInWallet(card.id);
-
-              return (
+          {availableCards.length === 0 ? (
+            <div className="bg-white rounded-lg shadow p-8 text-center text-gray-600">
+              You’ve already added all available cards to your wallet.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {availableCards.map((card) => (
                 <div
                   key={card.id}
                   className={`bg-white rounded-lg shadow p-6 border transition ${
-                    inWallet ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-blue-400'
+                    'border-gray-200 hover:border-blue-400'
                   }`}
                 >
-                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex justify-between items-start mb-4">
                     <div className="flex-1">
                       <h3 className="text-lg font-bold text-gray-900">{card.name}</h3>
                       <p className="text-sm text-gray-600">{formatIssuer(card.issuer)}</p>
                     </div>
-                    {inWallet && (
-                      <span className="px-2 py-1 bg-green-600 text-white text-xs rounded-full">
-                        In Wallet
-                      </span>
-                    )}
                   </div>
 
                   <div className="space-y-2 mb-4">
@@ -430,88 +436,67 @@ const CardManagement: React.FC = () => {
                     </div>
                   )}
 
-                  {!inWallet && (
-                    <button
-                      onClick={() => {
-                        console.log('Add to Wallet clicked for card:', card);
-                        console.log('Setting selectedCard to:', card);
-                        setSelectedCard(card);
-                        console.log('Setting showAddModal to true');
-                        setShowAddModal(true);
-                        console.log('State update calls complete');
-                      }}
-                      className="w-full mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center justify-center"
-                    >
-                      <Plus size={18} className="mr-2" />
-                      Add to Wallet
-                    </button>
-                  )}
+                  <button
+                    onClick={() => {
+                      setSelectedCard(card);
+                      setNotes('');
+                    }}
+                    className="w-full mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center justify-center"
+                  >
+                    <Plus size={18} className="mr-2" />
+                    Add to Wallet
+                  </button>
                 </div>
-              );
-            })}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
-      </div>
 
-      {/* Add Card Modal */}
-      {showAddModal && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4" 
-          style={{ zIndex: 9999 }}
-          onClick={(e) => {
-            console.log('Modal overlay clicked');
-            if (e.target === e.currentTarget) {
-              console.log('Clicked outside modal, closing');
-              setShowAddModal(false);
-              setSelectedCard(null);
-              setNotes('');
-            }
-          }}
-        >
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Add Card to Wallet</h3>
+        {/* Add Card Panel */}
+        {selectedCard && (
+          <div ref={addCardPanelRef} className="mt-2 flex justify-center">
+            <div className="w-full max-w-md bg-white rounded-lg shadow-xl p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Add Card to Wallet</h3>
 
-            {selectedCard && (
               <div className="mb-4 p-3 bg-blue-50 rounded-lg">
                 <p className="font-semibold text-gray-900">{selectedCard.name}</p>
                 <p className="text-sm text-gray-600">{formatIssuer(selectedCard.issuer)}</p>
               </div>
-            )}
 
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Notes (Optional)
-              </label>
-              <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Add personal notes about this card..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                rows={3}
-              />
-            </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Notes (Optional)
+                </label>
+                <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Add personal notes about this card..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows={3}
+                />
+              </div>
 
-            <div className="flex space-x-3">
-              <button
-                onClick={() => {
-                  setShowAddModal(false);
-                  setSelectedCard(null);
-                  setNotes('');
-                }}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleAddCard}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-              >
-                Add Card
-              </button>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => {
+                    setSelectedCard(null);
+                    setNotes('');
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddCard}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                >
+                  Add Card
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
