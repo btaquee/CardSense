@@ -56,7 +56,7 @@ source venv/bin/activate         # macOS/Linux
 pip install Django
 pip install djangorestframework django
 pip install django-cors-headers
-pip install -r requirements.txt
+pip install django-multiselectfield
 ```
 **React**
 
